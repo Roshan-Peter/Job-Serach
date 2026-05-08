@@ -85,7 +85,7 @@ Currently:
 ## 1. Clone Repository
 
 ```bash
-git clone 
+git clone https://github.com/Roshan-Peter/Job-Serach.git
 cd JobSearch
 ```
 
