@@ -1,0 +1,250 @@
+<%- include('../partials/header', { title: 'Post a Job' }) %>
+<%- include('../partials/navbar') %>
+
+<main class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <!-- header -->
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/dashboard" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+          <h2 class="fw-bold mb-0">Post a Job</h2>
+          <p class="text-muted small mb-0">Fill in the details below to publish your listing</p>
+        </div>
+      </div>
+
+      <!-- error -->
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+          <i class="bi bi-exclamation-circle me-2"></i><%= error %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+
+      <form id="jobForm" action="/jobs" method="post" novalidate>
+
+        <!-- ── BASIC INFO ── -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-white fw-semibold py-3">
+            <i class="bi bi-briefcase me-2 text-primary"></i>Basic Information
+          </div>
+          <div class="card-body p-4">
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Job Title <span class="text-danger">*</span></label>
+              <input name="title" type="text" class="form-control"
+                placeholder="e.g. Senior Frontend Developer"
+                value="<%= form.title || '' %>" required />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Company <span class="text-danger">*</span></label>
+              <input name="company" type="text" class="form-control"
+                placeholder="e.g. Acme Corp"
+                value="<%= form.company || '' %>" required />
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-semibold">Location <span class="text-danger">*</span></label>
+                <input name="location" type="text" class="form-control"
+                  placeholder="e.g. New York, NY or Remote"
+                  value="<%= form.location || '' %>" required />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">Job Type <span class="text-danger">*</span></label>
+                <select name="type" class="form-select" required>
+                  <option value="">Select...</option>
+                  <% ['Full-time','Part-time','Contract','Freelance','Internship'].forEach(t => { %>
+                    <option value="<%= t %>" <%= (form.type === t) ? 'selected' : '' %>><%= t %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">Experience <span class="text-danger">*</span></label>
+                <select name="experience" class="form-select" required>
+                  <option value="">Select...</option>
+                  <% ['Entry level','Mid level','Senior level','Manager','Director'].forEach(e => { %>
+                    <option value="<%= e %>" <%= (form.experience === e) ? 'selected' : '' %>><%= e %></option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── SALARY ── -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-white fw-semibold py-3">
+            <i class="bi bi-cash-stack me-2 text-success"></i>Salary <span class="text-muted fw-normal small ms-1">(optional)</span>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">Currency</label>
+                <select name="salaryCurrency" class="form-select">
+                  <% ['USD','EUR','GBP','CAD','AUD'].forEach(c => { %>
+                    <option value="<%= c %>" <%= (form.salaryCurrency === c) ? 'selected' : '' %>><%= c %></option>
+                  <% }) %>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">Min</label>
+                <input name="salaryMin" type="number" class="form-control" placeholder="50000"
+                  value="<%= form.salaryMin || '' %>" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">Max</label>
+                <input name="salaryMax" type="number" class="form-control" placeholder="80000"
+                  value="<%= form.salaryMax || '' %>" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-semibold">Period</label>
+                <select name="salaryPeriod" class="form-select">
+                  <% ['yearly','monthly','hourly'].forEach(p => { %>
+                    <option value="<%= p %>" <%= (form.salaryPeriod === p) ? 'selected' : '' %>><%= p %></option>
+                  <% }) %>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── DESCRIPTION ── -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-white fw-semibold py-3">
+            <i class="bi bi-file-text me-2 text-primary"></i>Job Details
+          </div>
+          <div class="card-body p-4">
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Description <span class="text-danger">*</span></label>
+              <textarea name="description" class="form-control" rows="6"
+                placeholder="Describe the role, responsibilities, and what makes it exciting…" required><%= form.description || '' %></textarea>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Requirements</label>
+              <textarea name="requirements" class="form-control" rows="4"
+                placeholder="One requirement per line:&#10;3+ years of React experience&#10;Proficient in TypeScript&#10;Experience with REST APIs"><%= form.requirements || '' %></textarea>
+              <div class="form-text">Enter each requirement on a new line</div>
+            </div>
+
+            <div class="mb-0">
+              <label class="form-label fw-semibold">Skills</label>
+              <input name="skills" type="text" class="form-control"
+                placeholder="React, TypeScript, Node.js, MongoDB"
+                value="<%= form.skills || '' %>" />
+              <div class="form-text">Separate skills with commas</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── APPLY OPTIONS ── -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-white fw-semibold py-3">
+            <i class="bi bi-send me-2 text-primary"></i>How to Apply
+          </div>
+          <div class="card-body p-4">
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <input type="radio" class="btn-check" name="applyType" id="easyApply"
+                  value="easy_apply" <%= (!form.applyType || form.applyType === 'easy_apply') ? 'checked' : '' %> />
+                <label class="btn btn-outline-primary w-100 py-3" for="easyApply">
+                  <i class="bi bi-lightning-charge-fill d-block fs-4 mb-1"></i>
+                  <span class="fw-semibold">Easy Apply</span>
+                  <small class="d-block text-muted mt-1">Applicants apply directly on this platform</small>
+                </label>
+              </div>
+              <div class="col-md-6">
+                <input type="radio" class="btn-check" name="applyType" id="externalApply"
+                  value="external" <%= (form.applyType === 'external') ? 'checked' : '' %> />
+                <label class="btn btn-outline-secondary w-100 py-3" for="externalApply">
+                  <i class="bi bi-box-arrow-up-right d-block fs-4 mb-1"></i>
+                  <span class="fw-semibold">External Link</span>
+                  <small class="d-block text-muted mt-1">Redirect applicants to your website</small>
+                </label>
+              </div>
+            </div>
+
+            <!-- external URL field (shown only when external is selected) -->
+            <div id="externalUrlField" style="display: <%= (form.applyType === 'external') ? 'block' : 'none' %>">
+              <label class="form-label fw-semibold">
+                Application URL <span class="text-danger">*</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-link-45deg"></i></span>
+                <input name="externalUrl" type="url" class="form-control"
+                  placeholder="https://yourcompany.com/careers/apply"
+                  value="<%= form.externalUrl || '' %>" />
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- submit -->
+        <div class="d-flex gap-3 justify-content-end mb-5">
+          <a href="/dashboard" class="btn btn-outline-secondary px-4">Cancel</a>
+          <button id="submitBtn" type="submit" class="btn btn-primary px-5">
+            <span id="btnText"><i class="bi bi-send me-2"></i>Publish Job</span>
+            <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</main>
+
+<script>
+  // toggle external URL field
+  document.querySelectorAll('input[name="applyType"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const show = document.getElementById('externalApply').checked;
+      document.getElementById('externalUrlField').style.display = show ? 'block' : 'none';
+    });
+  });
+
+  // submit with spinner
+  document.getElementById('jobForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn     = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const spinner = document.getElementById('btnSpinner');
+
+    btn.disabled = true;
+    btnText.innerHTML = 'Publishing…';
+    spinner.classList.remove('d-none');
+
+    const payload = Object.fromEntries(new FormData(e.target).entries());
+
+    try {
+      const res  = await fetch('/jobs', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || 'Failed to publish job');
+      } else {
+        window.location.href = data.redirect;
+      }
+    } catch {
+      alert('Network error. Please try again.');
+    } finally {
+      btn.disabled = false;
+      btnText.innerHTML = '<i class="bi bi-send me-2"></i>Publish Job';
+      spinner.classList.add('d-none');
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,23 @@
+{
+  "name": "jobsearch",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "Roshan Peter",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon server",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "connect-mongo": "^6.0.0",
+    "dotenv": "^17.4.2",
+    "ejs": "^5.0.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "mongoose": "^9.6.2",
+    "nodemon": "^3.1.14"
+  }
+}

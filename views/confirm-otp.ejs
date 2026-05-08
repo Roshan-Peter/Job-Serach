@@ -1,0 +1,210 @@
+<%- include('partials/header', { title: 'Confirm OTP' }) %>
+
+<main class="d-flex align-items-center justify-content-center min-vh-100 bg-light">
+  <div class="card shadow-sm w-100" style="max-width: 420px;">
+    <div class="card-body p-4 p-md-5">
+
+      <!-- Icon + Heading -->
+      <div class="text-center mb-4">
+        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width:64px;height:64px;">
+          <i class="bi bi-shield-lock text-primary fs-3"></i>
+        </div>
+        <h2 class="fw-bold mb-1">Verify your email</h2>
+        <p class="text-muted small">
+          We sent a 6-digit code to<br/>
+          <strong class="text-dark"><%= email %></strong>
+        </p>
+      </div>
+
+      <!-- Error Alert -->
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger alert-dismissible fade show py-2" role="alert" id="errorMsg">
+          <i class="bi bi-exclamation-circle me-2"></i><%= error %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } else { %>
+        <div class="alert alert-danger py-2 d-none" role="alert" id="errorMsg"></div>
+      <% } %>
+
+      <!-- Success Alert -->
+      <div class="alert alert-success py-2 d-none" role="alert" id="successMsg">
+        <i class="bi bi-check-circle me-2"></i>
+      </div>
+
+      <!-- OTP Form -->
+      <form id="otpForm" action="/confirm-otp" method="post" novalidate>
+        <input type="hidden" name="email" value="<%= email %>"/>
+
+        <div class="mb-4">
+          <label for="otp" class="form-label fw-semibold">Enter OTP</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-key"></i></span>
+            <input
+              id="otp"
+              name="otp"
+              type="text"
+              class="form-control form-control-lg text-center fw-bold ls-4"
+              placeholder="_ _ _ _ _ _"
+              maxlength="6"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              required
+            />
+          </div>
+          <div class="form-text text-muted mt-1">
+            <i class="bi bi-clock me-1"></i>Code expires in <span id="expiryTimer" class="fw-semibold text-danger">05:00</span>
+          </div>
+        </div>
+
+        <div class="d-grid mb-3">
+          <button id="submitBtn" class="btn btn-primary btn-lg" type="submit">
+            <span id="btnText">Verify OTP</span>
+            <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+          </button>
+        </div>
+      </form>
+
+      <hr class="my-3"/>
+
+      <!-- Resend -->
+      <div class="text-center">
+        <p class="text-muted small mb-2">Didn't receive the code?</p>
+        <button id="resendBtn" class="btn btn-outline-secondary btn-sm px-4" type="button">
+          <i class="bi bi-arrow-clockwise me-1"></i>Resend OTP
+        </button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script>
+  // ─── back/forward protection ───────────────────────────────────────────────
+  // Replace current history entry so back button can't return here after verify
+  history.replaceState(null, '', window.location.href);
+  window.addEventListener('popstate', () => {
+    history.pushState(null, '', window.location.href);
+  });
+
+  // ─── refs ──────────────────────────────────────────────────────────────────
+  const email     = '<%= email %>';
+  const errorMsg  = document.getElementById('errorMsg');
+  const successMsg= document.getElementById('successMsg');
+  const submitBtn = document.getElementById('submitBtn');
+  const btnText   = document.getElementById('btnText');
+  const btnSpinner= document.getElementById('btnSpinner');
+  const resendBtn = document.getElementById('resendBtn');
+
+  // ─── expiry countdown (5 min) ──────────────────────────────────────────────
+  let timeLeft = 5 * 60;
+  const timerEl = document.getElementById('expiryTimer');
+
+  const countdown = setInterval(() => {
+    timeLeft--;
+    const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+    const s = String(timeLeft % 60).padStart(2, '0');
+    timerEl.textContent = `${m}:${s}`;
+    if (timeLeft <= 0) {
+      clearInterval(countdown);
+      timerEl.textContent = 'Expired';
+      submitBtn.disabled = true;
+      showError('OTP has expired. Please request a new one.');
+    }
+  }, 1000);
+
+  // ─── helpers ───────────────────────────────────────────────────────────────
+  function showError(msg) {
+    successMsg.classList.add('d-none');
+    errorMsg.innerHTML = `<i class="bi bi-exclamation-circle me-2"></i>${msg}`;
+    errorMsg.classList.remove('d-none');
+  }
+
+  function showSuccess(msg) {
+    errorMsg.classList.add('d-none');
+    successMsg.innerHTML = `<i class="bi bi-check-circle me-2"></i>${msg}`;
+    successMsg.classList.remove('d-none');
+  }
+
+  // ─── only allow numeric input ──────────────────────────────────────────────
+  document.getElementById('otp').addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '');
+  });
+
+  // ─── verify OTP ───────────────────────────────────────────────────────────
+  document.getElementById('otpForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.classList.add('d-none');
+    submitBtn.disabled = true;
+    btnText.textContent = 'Verifying…';
+    btnSpinner.classList.remove('d-none');
+
+    const data = Object.fromEntries(new FormData(e.target).entries());
+
+    try {
+      const res = await fetch('/confirm-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        showError(json.error || 'OTP verification failed');
+      } else {
+        clearInterval(countdown);
+        showSuccess('Email verified! Redirecting…');
+        // replace so verified page can't be navigated back to otp
+        setTimeout(() => { window.location.replace('/welcome'); }, 800);
+      }
+    } catch {
+      showError('Network error. Please try again.');
+    } finally {
+      submitBtn.disabled = false;
+      btnText.textContent = 'Verify OTP';
+      btnSpinner.classList.add('d-none');
+    }
+  });
+
+  // ─── resend OTP ───────────────────────────────────────────────────────────
+  resendBtn.addEventListener('click', async () => {
+    resendBtn.disabled = true;
+    errorMsg.classList.add('d-none');
+    successMsg.classList.add('d-none');
+
+    try {
+      const res = await fetch('/resend-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        showError(json.error || 'Failed to resend OTP');
+        resendBtn.disabled = false;
+      } else {
+        showSuccess('A new OTP has been sent!');
+
+        // reset expiry timer
+        timeLeft = 5 * 60;
+        submitBtn.disabled = false;
+
+        // 30s cooldown on resend button
+        let seconds = 30;
+        resendBtn.innerHTML = `<i class="bi bi-clock me-1"></i>Resend in ${seconds}s`;
+        const cooldown = setInterval(() => {
+          seconds--;
+          resendBtn.innerHTML = `<i class="bi bi-clock me-1"></i>Resend in ${seconds}s`;
+          if (seconds <= 0) {
+            clearInterval(cooldown);
+            resendBtn.innerHTML = `<i class="bi bi-arrow-clockwise me-1"></i>Resend OTP`;
+            resendBtn.disabled = false;
+          }
+        }, 1000);
+      }
+    } catch {
+      showError('Network error. Please try again.');
+      resendBtn.disabled = false;
+    }
+  });
+</script>
+
+<%- include('partials/footer') %>

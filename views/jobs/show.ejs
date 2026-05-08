@@ -1,0 +1,200 @@
+<%- include('../partials/header', { title: job.title }) %>
+<%- include('../partials/navbar') %>
+
+<main class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <a href="/jobs" class="btn btn-outline-secondary btn-sm mb-4">
+        <i class="bi bi-arrow-left me-1"></i>Back to jobs
+      </a>
+
+      <!-- header card -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+              <h2 class="fw-bold mb-1"><%= job.title %></h2>
+              <p class="text-muted mb-2">
+                <i class="bi bi-building me-1"></i><%= job.company %>
+                <span class="mx-2">·</span>
+                <i class="bi bi-geo-alt me-1"></i><%= job.location %>
+              </p>
+              <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-primary bg-opacity-10 text-primary"><%= job.type %></span>
+                <span class="badge bg-secondary bg-opacity-10 text-secondary"><%= job.experience %></span>
+                <% if (job.salary && (job.salary.min || job.salary.max)) { %>
+                  <span class="badge bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-cash me-1"></i>
+                    <%= job.salary.currency %>
+                    <%= job.salary.min ? job.salary.min.toLocaleString() : '' %>
+                    <% if (job.salary.min && job.salary.max) { %> – <% } %>
+                    <%= job.salary.max ? job.salary.max.toLocaleString() : '' %>
+                    / <%= job.salary.period %>
+                  </span>
+                <% } %>
+                <span class="badge <%= job.applyType === 'easy_apply' ? 'bg-warning bg-opacity-10 text-warning' : 'bg-info bg-opacity-10 text-info' %>">
+                  <i class="bi <%= job.applyType === 'easy_apply' ? 'bi-lightning-charge-fill' : 'bi-box-arrow-up-right' %> me-1"></i>
+                  <%= job.applyType === 'easy_apply' ? 'Easy Apply' : 'External' %>
+                </span>
+              </div>
+            </div>
+
+            <!-- apply button -->
+            <div class="text-end">
+              <% if (job.applyType === 'easy_apply') { %>
+                <button class="btn btn-primary btn-lg px-4"
+                  onclick="document.getElementById('easyApplySection').scrollIntoView({ behavior: 'smooth' })">
+                  <i class="bi bi-lightning-charge-fill me-2"></i>Easy Apply
+                </button>
+              <% } else { %>
+                <a href="<%= job.externalUrl %>" target="_blank" rel="noopener noreferrer"
+                  class="btn btn-outline-primary btn-lg px-4">
+                  <i class="bi bi-box-arrow-up-right me-2"></i>Apply Now
+                </a>
+              <% } %>
+              <p class="text-muted small mt-2 mb-0">
+                Posted <%= new Date(job.createdAt).toLocaleDateString() %>
+                by <%= job.postedBy.name %>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- description -->
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white fw-semibold py-3">
+          <i class="bi bi-file-text me-2 text-primary"></i>Job Description
+        </div>
+        <div class="card-body p-4">
+          <p style="white-space: pre-line"><%= job.description %></p>
+        </div>
+      </div>
+
+      <!-- requirements -->
+      <% if (job.requirements && job.requirements.length) { %>
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-white fw-semibold py-3">
+            <i class="bi bi-list-check me-2 text-primary"></i>Requirements
+          </div>
+          <div class="card-body p-4">
+            <ul class="mb-0">
+              <% job.requirements.forEach(req => { %>
+                <li class="mb-2"><%= req %></li>
+              <% }) %>
+            </ul>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- skills -->
+      <% if (job.skills && job.skills.length) { %>
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-header bg-white fw-semibold py-3">
+            <i class="bi bi-tags me-2 text-primary"></i>Skills
+          </div>
+          <div class="card-body p-4">
+            <div class="d-flex flex-wrap gap-2">
+              <% job.skills.forEach(skill => { %>
+                <span class="badge bg-light text-dark border"><%= skill %></span>
+              <% }) %>
+            </div>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- easy apply form -->
+      <% if (job.applyType === 'easy_apply') { %>
+        <div class="card shadow-sm border-0 mb-4" id="easyApplySection">
+          <div class="card-header bg-white fw-semibold py-3">
+            <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Easy Apply
+          </div>
+          <div class="card-body p-4">
+            <div id="applyError" class="alert alert-danger d-none"></div>
+            <div id="applySuccess" class="alert alert-success d-none">
+              <i class="bi bi-check-circle me-2"></i>Application submitted successfully!
+            </div>
+            <form id="applyForm">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                <input name="name" type="text" class="form-control"
+                  value="<%= user ? user.name : '' %>" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                <input name="email" type="email" class="form-control"
+                  value="<%= user ? user.email : '' %>" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Phone</label>
+                <input name="phone" type="tel" class="form-control" placeholder="+1 234 567 8900" />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">LinkedIn / Portfolio URL</label>
+                <input name="portfolio" type="url" class="form-control"
+                  placeholder="https://linkedin.com/in/yourname" />
+              </div>
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Cover Letter</label>
+                <textarea name="coverLetter" class="form-control" rows="5"
+                  placeholder="Tell us why you're a great fit for this role…"></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary px-5" id="applyBtn">
+                <span id="applyBtnText"><i class="bi bi-send me-2"></i>Submit Application</span>
+                <span id="applySpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+              </button>
+            </form>
+          </div>
+        </div>
+      <% } %>
+
+      <!-- owner actions -->
+      <% if (user && String(user._id) === String(job.postedBy._id)) { %>
+        <div class="card border-danger border-opacity-25 mb-5">
+          <div class="card-body d-flex justify-content-between align-items-center p-3">
+            <span class="text-muted small">You posted this job</span>
+            <form action="/jobs/<%= job._id %>/delete" method="post"
+              onsubmit="return confirm('Delete this job posting?')">
+              <button class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash me-1"></i>Delete
+              </button>
+            </form>
+          </div>
+        </div>
+      <% } %>
+
+    </div>
+  </div>
+</main>
+
+<script>
+  // easy apply form submit (placeholder — hook to your Applications controller later)
+  const applyForm = document.getElementById('applyForm');
+  if (applyForm) {
+    applyForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn     = document.getElementById('applyBtn');
+      const btnText = document.getElementById('applyBtnText');
+      const spinner = document.getElementById('applySpinner');
+      const errEl   = document.getElementById('applyError');
+      const sucEl   = document.getElementById('applySuccess');
+
+      btn.disabled = true;
+      btnText.innerHTML = 'Submitting…';
+      spinner.classList.remove('d-none');
+      errEl.classList.add('d-none');
+
+      // TODO: POST to /jobs/<id>/apply when you build the Applications controller
+      await new Promise(r => setTimeout(r, 800)); // simulate
+      sucEl.classList.remove('d-none');
+      applyForm.reset();
+
+      btn.disabled = false;
+      btnText.innerHTML = '<i class="bi bi-send me-2"></i>Submit Application';
+      spinner.classList.add('d-none');
+    });
+  }
+</script>
+
+<%- include('../partials/footer') %>

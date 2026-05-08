@@ -1,0 +1,192 @@
+<%- include('partials/header', { title: 'Register' }) %>
+<%- include('partials/navbar') %>
+
+<main class="d-flex align-items-center justify-content-center min-vh-100 bg-light">
+  <div class="card shadow-sm w-100" style="max-width: 460px;">
+    <div class="card-body p-4 p-md-5">
+
+      <!-- Logo / Brand -->
+      <div class="text-center mb-4">
+        <h2 class="fw-bold mb-1">Create an account</h2>
+        <p class="text-muted small">Sign up to get started today</p>
+      </div>
+
+      <!-- Error Alert -->
+      <div id="errorContainer">
+        <% if (typeof error !== 'undefined' && error) { %>
+          <div class="alert alert-danger alert-dismissible fade show py-2" role="alert">
+            <i class="bi bi-exclamation-circle me-2"></i><%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        <% } %>
+      </div>
+
+      <form id="registerForm" action="/register" method="post" autocomplete="on" novalidate>
+
+        <div class="mb-3">
+          <label for="name" class="form-label fw-semibold">Full Name</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-person"></i></span>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              class="form-control"
+              placeholder="Your full name"
+              required
+              value="<%= (form && form.name) ? form.name : '' %>"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label fw-semibold">Email Address</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-envelope"></i></span>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              class="form-control"
+              placeholder="you@example.com"
+              required
+              value="<%= (form && form.email) ? form.email : '' %>"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label fw-semibold">Password</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-lock"></i></span>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              class="form-control"
+              placeholder="Min. 8 characters"
+              required
+              minlength="8"
+            />
+            <button class="btn btn-outline-secondary" type="button" id="togglePassword" tabindex="-1">
+              <i class="bi bi-eye" id="togglePasswordIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="confirmPassword" class="form-label fw-semibold">Confirm Password</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-lock-fill"></i></span>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
+              type="password"
+              class="form-control"
+              placeholder="Re-enter your password"
+              required
+              minlength="8"
+            />
+            <button class="btn btn-outline-secondary" type="button" id="toggleConfirm" tabindex="-1">
+              <i class="bi bi-eye" id="toggleConfirmIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="d-grid mb-3">
+          <button id="submitBtn" class="btn btn-primary btn-lg" type="submit">
+            <span id="btnText">Create Account</span>
+            <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status"></span>
+          </button>
+        </div>
+
+      </form>
+
+      <div id="successMsg" class="alert alert-success text-center d-none" role="alert">
+        <i class="bi bi-check-circle me-2"></i>Account created! Redirecting…
+      </div>
+
+      <hr class="my-3" />
+
+      <p class="text-center text-muted small mb-0">
+        Already have an account? <a href="/login" class="text-decoration-none fw-semibold">Log in</a>
+      </p>
+
+    </div>
+  </div>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('registerForm');
+    const errorContainer = document.getElementById('errorContainer');
+    const successMsg = document.getElementById('successMsg');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    // toggle password visibility
+    function toggleVisibility(btnId, inputId, iconId) {
+      document.getElementById(btnId).addEventListener('click', () => {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        icon.className = isPassword ? 'bi bi-eye-slash' : 'bi bi-eye';
+      });
+    }
+    toggleVisibility('togglePassword', 'password', 'togglePasswordIcon');
+    toggleVisibility('toggleConfirm', 'confirmPassword', 'toggleConfirmIcon');
+
+    // form submit
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorContainer.innerHTML = '';
+      successMsg.classList.add('d-none');
+      submitBtn.disabled = true;
+      btnText.textContent = 'Creating account…';
+      btnSpinner.classList.remove('d-none');
+
+      const payload = Object.fromEntries(new FormData(form).entries());
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const text = await res.text();
+        let data;
+        try { data = JSON.parse(text); } catch { data = null; }
+
+        if (!res.ok) {
+          const msg = data?.error || 'Registration failed';
+          errorContainer.innerHTML = `
+            <div class="alert alert-danger alert-dismissible fade show py-2" role="alert">
+              <i class="bi bi-exclamation-circle me-2"></i>${msg}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>`;
+        } else {
+          if (data?.redirect) {
+            successMsg.classList.remove('d-none');
+            setTimeout(() => { window.location.href = data.redirect; }, 800);
+          } else {
+            window.location.href = '/login?registered=1';
+          }
+        }
+      } catch {
+        errorContainer.innerHTML = `
+          <div class="alert alert-danger py-2" role="alert">
+            <i class="bi bi-wifi-off me-2"></i>Network error. Please try again.
+          </div>`;
+      } finally {
+        submitBtn.disabled = false;
+        btnText.textContent = 'Create Account';
+        btnSpinner.classList.add('d-none');
+      }
+    });
+  });
+</script>
+
+<%- include('partials/footer') %>
