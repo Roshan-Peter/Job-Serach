@@ -1,7 +1,7 @@
-import UserService from '../services/UserService.js';
-import OtpService from '../services/OtpService.js';
+import UserService     from '../services/UserService.js';
+import OtpService      from '../services/OtpService.js';
 import LoginLogService from '../services/LoginLogService.js';
-
+import AdminService    from '../services/AdminService.js'; // ✅ new
 
 export default class AuthController {
 
@@ -72,16 +72,21 @@ export default class AuthController {
 
     const user = await UserService.confirmEmail(email);
 
-    // ✅ create session after email confirmed
+    // ✅ check admin table after confirming email
+    const adminRecord = await AdminService.findByUserId(user._id);
+
     req.session.user = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
+      _id:              user._id,
+      name:             user.name,
+      email:            user.email,
       isEmailConfirmed: true,
+      isAdmin:          !!adminRecord,                  // ✅
+      adminRole:        adminRecord?.role || null,      // ✅
     };
 
-    if (isJson) return res.json({ success: true, redirect: '/dashboard' });
-    return res.redirect('/dashboard');
+    const redirect = adminRecord ? '/admin' : '/dashboard';
+    if (isJson) return res.json({ success: true, redirect });
+    return res.redirect(redirect);
   }
 
   static async resendOtp(req, res) {
@@ -124,7 +129,7 @@ export default class AuthController {
     return res.render('login', { error: null });
   }
 
- static async login(req, res) {
+  static async login(req, res) {
     const isJson = req.headers.accept?.includes('application/json');
     const { email, password } = req.body || {};
 
@@ -138,7 +143,6 @@ export default class AuthController {
       const user = await UserService.authenticate(email, password);
 
       if (!user.isEmailConfirmed) {
-        // ✅ log failed attempt — unconfirmed email
         await LoginLogService.record({
           email,
           userId: user._id,
@@ -158,7 +162,9 @@ export default class AuthController {
         return res.redirect(`/confirm-otp?email=${encodeURIComponent(email)}`);
       }
 
-      // ✅ log successful login
+      // ✅ look up admin table on every login
+      const adminRecord = await AdminService.findByUserId(user._id);
+
       await LoginLogService.record({
         email,
         userId: user._id,
@@ -172,14 +178,17 @@ export default class AuthController {
         name:             user.name,
         email:            user.email,
         isEmailConfirmed: user.isEmailConfirmed,
+        isAdmin:          !!adminRecord,             // ✅
+        adminRole:        adminRecord?.role || null, // ✅
       };
 
-      const next = req.query.next || '/dashboard';
+      // ✅ admins go to /admin, regular users go to /dashboard
+      const defaultRedirect = adminRecord ? '/admin' : '/dashboard';
+      const next = req.query.next || defaultRedirect;
       if (isJson) return res.json({ success: true, redirect: next });
       return res.redirect(next);
 
     } catch (err) {
-      // ✅ log failed attempt — wrong credentials
       await LoginLogService.record({
         email,
         userId: null,
@@ -204,10 +213,10 @@ export default class AuthController {
   }
 
   // ─── dashboard ─────────────────────────────────────────────────────────────
-static async showDashboard(req, res) {
-  const logs = await LoginLogService.findByUser(req.session.user._id, { limit: 5 });
-  return res.render('dashboard', { user: req.session.user, loginLogs: logs });
-}
+  static async showDashboard(req, res) {
+    const logs = await LoginLogService.findByUser(req.session.user._id, { limit: 5 });
+    return res.render('dashboard', { user: req.session.user, loginLogs: logs });
+  }
 
   static showWelcome(req, res) {
     return res.render('welcome');

@@ -5,5 +5,58 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title><%= typeof title !== 'undefined' ? title : 'App' %></title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+   <script>
+    (function () {
+      const savedTheme = localStorage.getItem("theme");
+
+      const systemPrefersDark = window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+      let theme = savedTheme || "system";
+
+      if (theme === "system") {
+        theme = systemPrefersDark ? "dark" : "light";
+      }
+
+      document.documentElement.setAttribute("data-bs-theme", theme);
+    })();
+  </script>
+
+  <style>
+    /* smooth theme transition */
+    body {
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .skill-badge {
+      max-width: 100%;
+      white-space: normal;      /* allows wrapping */
+      word-break: break-word;   /* breaks long words */
+      overflow-wrap: anywhere;  /* prevents overflow */
+      text-align: left;
+    }
+
+  </style>
 </head>
+
+<script>
+  function setTheme(mode) {
+    localStorage.setItem("theme", mode);
+
+    let theme = mode;
+
+    if (mode === "system") {
+      theme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? "dark"
+        : "light";
+    }
+
+    updateThemeLabel(theme)
+
+    document.documentElement.setAttribute("data-bs-theme", theme);
+  }
+</script>
+
+
+
 <body>

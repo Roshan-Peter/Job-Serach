@@ -18,25 +18,23 @@ app.set('views', './views');
 
 await connectDB();
 
-// ─── session setup ────────────────────────────────────────────────────────────
 app.use(session({
-  secret: SESSION_SECRET || 'changeme',
+  secret: SESSION_SECRET || 'snfdlsinvdlxkvdxklnvdxzlbvb',
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({
     mongoUrl: MONGO_URI,
     collectionName: 'sessions',
-    ttl: 60 * 60 * 24 * 7,  // 7 days in seconds
+    ttl: 60 * 60 * 24 * 7,  
   }),
   cookie: {
-    httpOnly: true,           // JS can't read the cookie
-    secure: process.env.NODE_ENV === 'production', // HTTPS only in prod
-    maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days in ms
+    httpOnly: true,           
+    secure: process.env.NODE_ENV === 'production', 
+    maxAge: 1000 * 60 * 60 * 24 * 7, 
     sameSite: 'lax',
   },
 }));
 
-// ─── make session user available in all views ─────────────────────────────────
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   next();

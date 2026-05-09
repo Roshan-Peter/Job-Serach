@@ -1,5 +1,7 @@
 import User from '../models/User.js';
 import bcrypt from 'bcrypt';
+import { randomBytes } from "crypto";
+
 
 const SALT_ROUNDS = 10;
 
@@ -23,8 +25,9 @@ export default class UserService {
       err.status = 409;
       throw err;
     }
+    const publicId = await this.makePublicId();
     const hash = await bcrypt.hash(password, SALT_ROUNDS);
-    const user = await User.create({ name, email, password: hash });
+    const user = await User.create({ name, email, password: hash, publicId });
     const obj = user.toObject();
     delete obj.password;
     return obj;
@@ -96,4 +99,12 @@ export default class UserService {
     delete obj.password;
     return obj;
   }
+
+
+
+  static async makePublicId() {
+  const random = randomBytes(4).toString('hex').toUpperCase(); // 8‑hex chars
+  const time   = Date.now().toString(36).toUpperCase();        // compact timestamp
+  return `USR-${time}-${random}`;
+}
 }

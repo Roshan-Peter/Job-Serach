@@ -7,6 +7,12 @@ const userSchema = new mongoose.Schema({
   isEmailConfirmed: { type: Boolean, default: false },    // <- new
   emailConfirmedAt: { type: Date, default: null }, 
   createdAt: { type: Date, default: Date.now },
+    publicId: {
+    type: String,
+    unique: true,
+    index: true
+  },
 });
+
 
 export default mongoose.models.User || mongoose.model('User', userSchema);

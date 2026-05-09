@@ -55,7 +55,7 @@
               <% } %>
               <p class="text-muted small mt-2 mb-0">
                 Posted <%= new Date(job.createdAt).toLocaleDateString() %>
-                by <%= job.postedBy.name %>
+                by <a href="/profile/<%= job.postedBy.publicId %>"><%= job.postedBy.name %></a>
               </p>
             </div>
           </div>
@@ -64,7 +64,7 @@
 
       <!-- description -->
       <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header bg-white fw-semibold py-3">
+        <div class="card-header fw-semibold py-3">
           <i class="bi bi-file-text me-2 text-primary"></i>Job Description
         </div>
         <div class="card-body p-4">
@@ -75,7 +75,7 @@
       <!-- requirements -->
       <% if (job.requirements && job.requirements.length) { %>
         <div class="card shadow-sm border-0 mb-4">
-          <div class="card-header bg-white fw-semibold py-3">
+          <div class="card-header fw-semibold py-3">
             <i class="bi bi-list-check me-2 text-primary"></i>Requirements
           </div>
           <div class="card-body p-4">
@@ -91,23 +91,27 @@
       <!-- skills -->
       <% if (job.skills && job.skills.length) { %>
         <div class="card shadow-sm border-0 mb-4">
-          <div class="card-header bg-white fw-semibold py-3">
+          <div class="card-header fw-semibold py-3">
             <i class="bi bi-tags me-2 text-primary"></i>Skills
           </div>
+
           <div class="card-body p-4">
             <div class="d-flex flex-wrap gap-2">
+
               <% job.skills.forEach(skill => { %>
-                <span class="badge bg-light text-dark border"><%= skill %></span>
+                <span class="badge bg-light text-dark border skill-badge">
+                  <%= skill %>
+                </span>
               <% }) %>
+
             </div>
           </div>
         </div>
       <% } %>
-
       <!-- easy apply form -->
       <% if (job.applyType === 'easy_apply') { %>
         <div class="card shadow-sm border-0 mb-4" id="easyApplySection">
-          <div class="card-header bg-white fw-semibold py-3">
+          <div class="card-header fw-semibold py-3">
             <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Easy Apply
           </div>
           <div class="card-body p-4">
