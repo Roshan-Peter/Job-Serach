@@ -1,371 +1,422 @@
 <%- include('../partials/header', { title: 'Account Settings' }) %>
-<%- include('../partials/navbar') %>
+  <%- include('../partials/navbar') %>
 
-<main class="container py-5">
-  <h2 class="fw-bold mb-4 p-3">Account Settings</h2>
+    <main class="container py-5">
+      <h2 class="fw-bold mb-4 p-3">Account Settings</h2>
 
-  <div class="px-3">
+      <div class="px-3">
 
-    <!-- alerts from redirect -->
-    <% const qs = new URLSearchParams(typeof _locals !== 'undefined' ? '' : ''); %>
-    <% if (success === 'company_submitted' || (typeof query !== 'undefined' && query.success === 'company_submitted')) { %>
-      <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="bi bi-check-circle me-2"></i>
-        Company submitted for verification! You'll be notified within 7 days.
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    <% } %>
+        <!-- alerts from redirect -->
+        <% const qs=new URLSearchParams(typeof _locals !=='undefined' ? '' : '' ); %>
+          <% if (success==='company_submitted' || (typeof query !=='undefined' && query.success==='company_submitted' ))
+            { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+              <i class="bi bi-check-circle me-2"></i>
+              Company submitted for verification! You'll be notified within 7 days.
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <% } %>
 
-    <% if (typeof error !== 'undefined' && error) { %>
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-circle me-2"></i><%= error %>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
-    <% } %>
+              <% if (typeof error !=='undefined' && error) { %>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <i class="bi bi-exclamation-circle me-2"></i>
+                  <%= error %>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                <% } %>
 
-    <!-- public id -->
-    <p class="d-flex align-items-center gap-2 mb-0">
-      <span>Your public id: <strong id="publicIdText"><%= publicId %></strong></span>
-      <span role="button" style="cursor:pointer" onclick="copyPublicId()" title="Copy ID">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="text-primary">
-          <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
-        </svg>
-      </span>
-    </p>
-    <small id="copyMsg" class="text-success d-none">ID copied!</small>
+                  <!-- public id -->
+                  <p class="d-flex align-items-center gap-2 mb-0">
+                    <span>Your public id: <strong id="publicIdText">
+                        <%= publicId %>
+                      </strong></span>
+                    <span role="button" style="cursor:pointer" onclick="copyPublicId()" title="Copy ID">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor"
+                        viewBox="0 0 16 16" class="text-primary">
+                        <path fill-rule="evenodd"
+                          d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z" />
+                      </svg>
+                    </span>
+                  </p>
+                  <small id="copyMsg" class="text-success d-none">ID copied!</small>
 
-    <!-- appearance -->
-    <div class="card shadow-sm border-0 mt-4">
-      <div class="card-header fw-semibold py-3">
-        <i class="bi bi-palette me-2 text-primary"></i>Appearance
-      </div>
-      <div class="card-body p-4">
-        <div class="d-flex align-items-center gap-3">
-          <span>Preferred color scheme:</span>
-          <div class="dropdown">
-            <button class="btn btn-outline-secondary btn-sm dropdown-toggle" id="themeLabel" data-bs-toggle="dropdown"></button>
-            <ul class="dropdown-menu">
-              <li><button class="dropdown-item" onclick="setTheme('light')">Light</button></li>
-              <li><button class="dropdown-item" onclick="setTheme('dark')">Dark</button></li>
-              <li><button class="dropdown-item" onclick="setTheme('system')">System</button></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </div>
+                  <!-- appearance -->
+                  <div class="card shadow-sm border-0 mt-4">
+                    <div class="card-header fw-semibold py-3">
+                      <i class="bi bi-palette me-2 text-primary"></i>Appearance
+                    </div>
+                    <div class="card-body p-4">
+                      <div class="d-flex align-items-center gap-3">
+                        <span>Preferred color scheme:</span>
+                        <div class="dropdown">
+                          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" id="themeLabel"
+                            data-bs-toggle="dropdown"></button>
+                          <ul class="dropdown-menu">
+                            <li><button class="dropdown-item" onclick="setTheme('light')">Light</button></li>
+                            <li><button class="dropdown-item" onclick="setTheme('dark')">Dark</button></li>
+                            <li><button class="dropdown-item" onclick="setTheme('system')">System</button></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
 
-    <!-- security -->
-    <div class="card shadow-sm border-0 mt-3">
-      <div class="card-header fw-semibold py-3">
-        <i class="bi bi-shield-lock me-2 text-danger"></i>Security
-      </div>
-      <div class="card-body p-4">
-        <div class="d-flex flex-column gap-2">
-          <a href="#" class="text-decoration-none">
-            <i class="bi bi-clock-history me-2"></i>Login history
-          </a>
-          <a href="#" class="text-decoration-none">
-            <i class="bi bi-shield-check me-2"></i>Two-factor authentication
-          </a>
-        </div>
-      </div>
-    </div>
+                  <!-- security -->
+                  <div class="card shadow-sm border-0 mt-3">
+                    <div class="card-header fw-semibold py-3">
+                      <i class="bi bi-shield-lock me-2 text-danger"></i>Security
+                    </div>
+                    <div class="card-body p-4">
+                      <div class="d-flex flex-column gap-2">
+                        <a href="#" class="text-decoration-none">
+                          <i class="bi bi-clock-history me-2"></i>Login history
+                        </a>
 
-    <!-- company section -->
-    <div class="mt-3">
 
-      <% if (company) { %>
-        <!-- ✅ already has a company — show status card -->
-        <div class="card shadow-sm border-0">
-          <div class="card-header fw-semibold py-3 d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-building me-2 text-primary"></i>Your Company</span>
-            <span class="badge
+                        <hr class="border-2 opacity-75 my-4">
+
+
+
+                        <a href="#" class="text-decoration-none">
+                          <i class="bi bi-shield-check me-2"></i>Two-factor authentication
+
+                          <div class="d-flex align-items-center gap-3">
+                            <!-- 2‑FA status -->
+                            <div>
+                              <div class="text-muted small">
+                                <% if (user.twoFactorEnabled) { %>
+                                  <span class="text-success">
+                                    <i class="bi bi-check-circle me-1"></i>Enabled
+                                  </span>
+                                  — your account is protected
+                                  <% } else { %>
+                                    <span class="text-warning">
+                                      <i class="bi bi-exclamation-circle me-1"></i>Not enabled
+                                    </span>
+                                    — add extra security to your account
+                                    <% } %>
+                              </div>
+                            </div>
+
+                            <!-- Action button -->
+                            <a href="/account/2fa/<%= user.twoFactorEnabled ? 'manage' : 'setup' %>"
+                              class="btn btn-sm <%= user.twoFactorEnabled ? 'btn-outline-success' : 'btn-outline-primary' %>">
+                              <%= user.twoFactorEnabled ? 'Manage' : 'Set Up' %>
+                            </a>
+                          </div>
+                        </a>
+
+
+
+
+                        <hr class="border-2 opacity-75 my-4">
+
+                        <a href="#" class="text-decoration-none">
+                          <i class="bi bi-clock-history me-2"></i>Change Password
+                        </a>
+
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- company section -->
+                  <div class="mt-3">
+
+                    <% if(user && !user.isAdmin) { if (company) { %>
+                      <div class="card shadow-sm border-0">
+                        <div class="card-header fw-semibold py-3 d-flex justify-content-between align-items-center">
+                          <span><i class="bi bi-building me-2 text-primary"></i>Your Company</span>
+                          <span class="badge
               <%= company.status === 'approved' ? 'bg-success' :
                  company.status === 'rejected' ? 'bg-danger' : 'bg-warning text-dark' %>">
-              <i class="bi
+                            <i class="bi
                 <%= company.status === 'approved' ? 'bi-check-circle' :
                    company.status === 'rejected' ? 'bi-x-circle' : 'bi-clock-history' %> me-1"></i>
-              <%= company.status.charAt(0).toUpperCase() + company.status.slice(1) %>
-            </span>
+                            <%= company.status.charAt(0).toUpperCase() + company.status.slice(1) %>
+                          </span>
+                        </div>
+                        <div class="card-body p-4">
+                          <div class="row g-3">
+                            <div class="col-md-6">
+                              <div class="text-muted small">Company Name</div>
+                              <div class="fw-semibold">
+                                <%= company.name %>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="text-muted small">Website</div>
+                              <a href="<%= company.website %>" target="_blank" class="fw-semibold">
+                                <%= company.website %>
+                              </a>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="text-muted small">Industry</div>
+                              <div class="fw-semibold">
+                                <%= company.industry %>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="text-muted small">Size</div>
+                              <div class="fw-semibold">
+                                <%= company.size %> employees
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="text-muted small">Email</div>
+                              <div class="fw-semibold">
+                                <%= company.email %>
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                              <div class="text-muted small">Phone</div>
+                              <div class="fw-semibold">
+                                <%= company.phone %>
+                              </div>
+                            </div>
+                            <div class="col-12">
+                              <div class="text-muted small">Address</div>
+                              <div class="fw-semibold">
+                                <%= company.address %>
+                              </div>
+                            </div>
+
+                            <% if (company.status==='pending' ) { %>
+                              <div class="col-12">
+                                <div class="alert alert-info mb-0 py-2 small">
+                                  <i class="bi bi-clock-history me-2"></i>
+                                  Your company is under review. This may take up to <strong>7 days</strong>.
+                                </div>
+                              </div>
+                              <% } %>
+
+                                <% if (company.status==='rejected' ) { %>
+                                  <div class="col-12">
+                                    <div class="alert alert-danger mb-0 py-2 small">
+                                      <i class="bi bi-x-circle me-2"></i>
+                                      <strong>Rejected:</strong>
+                                      <%= company.rejectionReason || 'No reason provided.' %>
+                                    </div>
+                                  </div>
+                                  <% } %>
+
+                                    <% if (company.status==='approved' ) { %>
+                                      <div class="col-12">
+                                        <div class="alert alert-success mb-0 py-2 small">
+                                          <i class="bi bi-check-circle me-2"></i>
+                                          Company verified on <%= new Date(company.verifiedAt).toLocaleDateString() %>.
+                                        </div>
+                                      </div>
+                                      <% } %>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <% } else { %>
+                        <div
+                          class="p-4 border rounded-4 shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-3">
+                          <div>
+                            <h6 class="mb-1 fw-bold">
+                              <i class="bi bi-building me-2 text-primary"></i>Register your Company
+                            </h6>
+                            <p class="mb-0 text-muted small">
+                              Add your company details to start posting jobs and get verified.
+                            </p>
+                          </div>
+                          <button class="btn btn-primary btn-lg px-4 rounded-3 shadow-sm" data-bs-toggle="modal"
+                            data-bs-target="#companyModal">
+                            <i class="bi bi-plus-circle me-2"></i>Add Company
+                          </button>
+                        </div>
+                        <% } }%>
+
+                  </div>
+
+                  <p class="text-muted small mt-4 text-center">Account created on <%= new
+                      Date(created).toLocaleDateString() %>
+                  </p>
+
+      </div>
+    </main>
+
+
+    <!-- ── COMPANY MODAL ── -->
+    <div class="modal fade" id="companyModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title"><i class="bi bi-building me-2"></i>Company Registration</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
-          <div class="card-body p-4">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <div class="text-muted small">Company Name</div>
-                <div class="fw-semibold"><%= company.name %></div>
-              </div>
-              <div class="col-md-6">
-                <div class="text-muted small">Website</div>
-                <a href="<%= company.website %>" target="_blank" class="fw-semibold">
-                  <%= company.website %>
-                </a>
-              </div>
-              <div class="col-md-6">
-                <div class="text-muted small">Industry</div>
-                <div class="fw-semibold"><%= company.industry %></div>
-              </div>
-              <div class="col-md-6">
-                <div class="text-muted small">Size</div>
-                <div class="fw-semibold"><%= company.size %> employees</div>
-              </div>
-              <div class="col-md-6">
-                <div class="text-muted small">Email</div>
-                <div class="fw-semibold"><%= company.email %></div>
-              </div>
-              <div class="col-md-6">
-                <div class="text-muted small">Phone</div>
-                <div class="fw-semibold"><%= company.phone %></div>
-              </div>
-              <div class="col-12">
-                <div class="text-muted small">Address</div>
-                <div class="fw-semibold"><%= company.address %></div>
-              </div>
 
-              <% if (company.status === 'pending') { %>
-                <div class="col-12">
-                  <div class="alert alert-info mb-0 py-2 small">
-                    <i class="bi bi-clock-history me-2"></i>
-                    Your company is under review. This may take up to <strong>7 days</strong>.
-                  </div>
-                </div>
-              <% } %>
+          <div class="modal-body">
 
-              <% if (company.status === 'rejected') { %>
-                <div class="col-12">
-                  <div class="alert alert-danger mb-0 py-2 small">
-                    <i class="bi bi-x-circle me-2"></i>
-                    <strong>Rejected:</strong> <%= company.rejectionReason || 'No reason provided.' %>
-                  </div>
-                </div>
-              <% } %>
+            <!-- error inside modal -->
+            <div id="modalError" class="alert alert-danger d-none"></div>
 
-              <% if (company.status === 'approved') { %>
-                <div class="col-12">
-                  <div class="alert alert-success mb-0 py-2 small">
-                    <i class="bi bi-check-circle me-2"></i>
-                    Company verified on <%= new Date(company.verifiedAt).toLocaleDateString() %>.
-                  </div>
-                </div>
-              <% } %>
-
+            <div class="alert alert-warning d-flex align-items-start gap-2">
+              <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+              <div>
+                <strong>Important:</strong>
+                This form should only be filled by users who own the company or have authorization from the company.
+              </div>
             </div>
-          </div>
-        </div>
 
-      <% } else { %>
-        <!-- ✅ no company yet — show register banner -->
-        <div class="p-4 border rounded-4 shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-3">
-          <div>
-            <h6 class="mb-1 fw-bold">
-              <i class="bi bi-building me-2 text-primary"></i>Register your Company
-            </h6>
-            <p class="mb-0 text-muted small">
-              Add your company details to start posting jobs and get verified.
-            </p>
-          </div>
-          <button class="btn btn-primary btn-lg px-4 rounded-3 shadow-sm"
-            data-bs-toggle="modal" data-bs-target="#companyModal">
-            <i class="bi bi-plus-circle me-2"></i>Add Company
-          </button>
-        </div>
-      <% } %>
+            <form id="companyForm">
 
+              <input type="hidden" name="owner" value="<%= user._id %>">
+
+              <div class="row g-3">
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Company Name <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="name" required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Official Website <span class="text-danger">*</span></label>
+                  <input type="url" class="form-control" name="website" placeholder="https://example.com" required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Company Email <span class="text-danger">*</span></label>
+                  <input type="email" class="form-control" name="email" required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
+                  <input type="tel" class="form-control" name="phone" placeholder="+1 234 567 8900" required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Industry <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" name="industry" placeholder="e.g. Technology, Finance"
+                    required />
+                </div>
+
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Company Size <span class="text-danger">*</span></label>
+                  <select class="form-select" name="size" required>
+                    <option value="">Select size…</option>
+                    <option>1-10</option>
+                    <option>11-50</option>
+                    <option>51-200</option>
+                    <option>201-500</option>
+                    <option>500+</option>
+                  </select>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Company Address <span class="text-danger">*</span></label>
+                  <textarea class="form-control" rows="3" name="address" required></textarea>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Company Description <span class="text-danger">*</span></label>
+                  <textarea class="form-control" name="description" rows="4"
+                    placeholder="Min. 20 characters — describe what your company does…" required></textarea>
+                </div>
+
+              </div>
+            </form>
+
+            <div class="alert alert-info mt-4 d-flex align-items-start gap-2 mb-0">
+              <i class="bi bi-clock-history mt-1"></i>
+              <div>
+                <strong>Verification Notice:</strong>
+                Company verification may take up to <b>7 days</b>. You will be notified once approved.
+              </div>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button id="submitCompanyBtn" class="btn btn-primary" type="button">
+              <span id="submitCompanyText">
+                <i class="bi bi-send me-2"></i>Submit for Verification
+              </span>
+              <span id="submitCompanySpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+            </button>
+          </div>
+
+        </div>
+      </div>
     </div>
 
-    <p class="text-muted small mt-4">Account created on <%= new Date(created).toLocaleDateString() %></p>
 
-  </div>
-</main>
-
-
-<!-- ── COMPANY MODAL ── -->
-<div class="modal fade" id="companyModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-building me-2"></i>Company Registration</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <div class="modal-body">
-
-        <!-- error inside modal -->
-        <div id="modalError" class="alert alert-danger d-none"></div>
-
-        <div class="alert alert-warning d-flex align-items-start gap-2">
-          <i class="bi bi-exclamation-triangle-fill mt-1"></i>
-          <div>
-            <strong>Important:</strong>
-            This form should only be filled by users who own the company or have authorization from the company.
-          </div>
-        </div>
-
-        <form id="companyForm">
-
-          <input type="hidden" name="owner" value="<%= user._id %>">
-
-          <div class="row g-3">
-
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Company Name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="name" required />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Official Website <span class="text-danger">*</span></label>
-              <input type="url" class="form-control" name="website" placeholder="https://example.com" required />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Company Email <span class="text-danger">*</span></label>
-              <input type="email" class="form-control" name="email" required />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Phone Number <span class="text-danger">*</span></label>
-              <input type="tel" class="form-control" name="phone" placeholder="+1 234 567 8900" required />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Industry <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="industry" placeholder="e.g. Technology, Finance" required />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label fw-semibold">Company Size <span class="text-danger">*</span></label>
-              <select class="form-select" name="size" required>
-                <option value="">Select size…</option>
-                <option>1-10</option>
-                <option>11-50</option>
-                <option>51-200</option>
-                <option>201-500</option>
-                <option>500+</option>
-              </select>
-            </div>
-
-            <div class="col-12">
-              <label class="form-label fw-semibold">Company Address <span class="text-danger">*</span></label>
-              <textarea class="form-control" rows="3" name="address" required></textarea>
-            </div>
-
-            <div class="col-12">
-              <label class="form-label fw-semibold">Company Description <span class="text-danger">*</span></label>
-              <textarea class="form-control" name="description" rows="4"
-                placeholder="Min. 20 characters — describe what your company does…" required></textarea>
-            </div>
-
-          </div>
-        </form>
-
-        <div class="alert alert-info mt-4 d-flex align-items-start gap-2 mb-0">
-          <i class="bi bi-clock-history mt-1"></i>
-          <div>
-            <strong>Verification Notice:</strong>
-            Company verification may take up to <b>7 days</b>. You will be notified once approved.
-          </div>
-        </div>
-
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button id="submitCompanyBtn" class="btn btn-primary" type="button">
-          <span id="submitCompanyText">
-            <i class="bi bi-send me-2"></i>Submit for Verification
-          </span>
-          <span id="submitCompanySpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
-        </button>
-      </div>
-
-    </div>
-  </div>
-</div>
-
-
-<script>
-  // ── copy public ID ─────────────────────────────────────────────────────────
-  function copyPublicId() {
-    const id  = document.getElementById('publicIdText').innerText;
-    const msg = document.getElementById('copyMsg');
-    navigator.clipboard.writeText(id).then(() => {
-      msg.classList.remove('d-none');
-      setTimeout(() => msg.classList.add('d-none'), 1500);
-    });
-  }
-
-  // ── theme ──────────────────────────────────────────────────────────────────
-  function setTheme(theme) {
-    localStorage.setItem('theme', theme);
-    document.documentElement.setAttribute('data-theme', theme);
-    updateThemeLabel(theme);
-  }
-
-  function updateThemeLabel(theme) {
-    const label = document.getElementById('themeLabel');
-    if (!label) return;
-    label.innerText = theme === 'light' ? 'Light' : theme === 'dark' ? 'Dark' : 'System';
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    const theme = localStorage.getItem('theme') || 'system';
-    document.documentElement.setAttribute('data-theme', theme);
-    updateThemeLabel(theme);
-
-    // ── show success toast if redirected back with ?success= ───────────────
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('success') === 'company_submitted') {
-      // remove query string from URL without reload
-      history.replaceState({}, '', window.location.pathname);
-    }
-  });
-
-  // ── company form submit via fetch ──────────────────────────────────────────
-  document.getElementById('submitCompanyBtn').addEventListener('click', async () => {
-    const form    = document.getElementById('companyForm');
-    const btn     = document.getElementById('submitCompanyBtn');
-    const btnText = document.getElementById('submitCompanyText');
-    const spinner = document.getElementById('submitCompanySpinner');
-    const errEl   = document.getElementById('modalError');
-
-    // basic HTML5 validation
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-
-    btn.disabled = true;
-    btnText.innerHTML = 'Submitting…';
-    spinner.classList.remove('d-none');
-    errEl.classList.add('d-none');
-
-    const payload = Object.fromEntries(new FormData(form).entries());
-
-    try {
-      const res  = await fetch('/account/company/register', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body:    JSON.stringify(payload),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        errEl.textContent = data.error || 'Failed to submit company';
-        errEl.classList.remove('d-none');
-      } else {
-        // close modal and reload page to show company card
-        bootstrap.Modal.getInstance(document.getElementById('companyModal')).hide();
-        window.location.reload();
+    <script>
+      // ── copy public ID ─────────────────────────────────────────────────────────
+      function copyPublicId() {
+        const id = document.getElementById('publicIdText').innerText;
+        const msg = document.getElementById('copyMsg');
+        navigator.clipboard.writeText(id).then(() => {
+          msg.classList.remove('d-none');
+          setTimeout(() => msg.classList.add('d-none'), 1500);
+        });
       }
-    } catch {
-      errEl.textContent = 'Network error. Please try again.';
-      errEl.classList.remove('d-none');
-    } finally {
-      btn.disabled = false;
-      btnText.innerHTML = '<i class="bi bi-send me-2"></i>Submit for Verification';
-      spinner.classList.add('d-none');
-    }
-  });
-</script>
 
-<%- include('../partials/footer') %>
+
+      window.addEventListener('DOMContentLoaded', () => {
+        const theme = localStorage.getItem('theme') || 'system';
+        document.documentElement.setAttribute('data-theme', theme);
+        updateThemeLabel(theme);
+
+        // ── show success toast if redirected back with ?success= ───────────────
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('success') === 'company_submitted') {
+          // remove query string from URL without reload
+          history.replaceState({}, '', window.location.pathname);
+        }
+      });
+
+      // ── company form submit via fetch ──────────────────────────────────────────
+      document.getElementById('submitCompanyBtn').addEventListener('click', async () => {
+        const form = document.getElementById('companyForm');
+        const btn = document.getElementById('submitCompanyBtn');
+        const btnText = document.getElementById('submitCompanyText');
+        const spinner = document.getElementById('submitCompanySpinner');
+        const errEl = document.getElementById('modalError');
+
+        // basic HTML5 validation
+        if (!form.checkValidity()) {
+          form.reportValidity();
+          return;
+        }
+
+        btn.disabled = true;
+        btnText.innerHTML = 'Submitting…';
+        spinner.classList.remove('d-none');
+        errEl.classList.add('d-none');
+
+        const payload = Object.fromEntries(new FormData(form).entries());
+
+        try {
+          const res = await fetch('/account/company/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            errEl.textContent = data.error || 'Failed to submit company';
+            errEl.classList.remove('d-none');
+          } else {
+            // close modal and reload page to show company card
+            bootstrap.Modal.getInstance(document.getElementById('companyModal')).hide();
+            window.location.reload();
+          }
+        } catch {
+          errEl.textContent = 'Network error. Please try again.';
+          errEl.classList.remove('d-none');
+        } finally {
+          btn.disabled = false;
+          btnText.innerHTML = '<i class="bi bi-send me-2"></i>Submit for Verification';
+          spinner.classList.add('d-none');
+        }
+      });
+    </script>
+
+    <%- include('../partials/footer') %>

@@ -5,6 +5,7 @@ import JobController from '../controllers/JobController.js';
 import { requireAuth, requireGuest, requireConfirmedEmail, requireAdmin, requireSuperAdmin } from '../middleware/auth.js';
 import AccountSettingsController from '../controllers/AccountSettingsController.js';
 import AdminController from '../controllers/AdminController.js';
+import TwoFactorController from '../controllers/TwoFactorController.js';
 
 
 const router = express.Router();
@@ -22,6 +23,20 @@ router.post('/login',       requireGuest, AuthController.login);
 router.get('/confirm-otp',               AuthController.showConfirmOtp);
 router.post('/confirm-otp',              AuthController.verifyOtp);
 router.post('/resend-otp',               AuthController.resendOtp);
+
+
+
+// ─── 2FA setup (requires login) ───────────────────────────────────────────
+router.get('/account/2fa/setup',       requireAuth, TwoFactorController.showSetup);
+router.post('/account/2fa/enable',     requireAuth, TwoFactorController.enableTwoFactor);
+router.get('/account/2fa/manage',      requireAuth, TwoFactorController.showManage);
+router.post('/account/2fa/disable',    requireAuth, TwoFactorController.disableTwoFactor);
+
+// ─── 2FA challenge during login (no requireAuth — user isn't logged in yet) ─
+router.get('/account/2fa/challenge',   TwoFactorController.showChallenge);
+router.post('/account/2fa/challenge',  TwoFactorController.verifyChallenge);
+
+
 
 // protected routes
 router.get('/dashboard', requireAuth, requireConfirmedEmail, AuthController.showDashboard);
@@ -58,6 +73,13 @@ router.get('/admin/admins',                          requireAuth, requireSuperAd
 router.post('/admin/admins',                         requireAuth, requireSuperAdmin, AdminController.addAdmin);
 router.post('/admin/admins/:userId/remove',          requireAuth, requireSuperAdmin, AdminController.removeAdmin);
 router.post('/admin/admins/:userId/role',            requireAuth, requireSuperAdmin, AdminController.updateRole);
+
+
+// ─── admin companies ──────────────────────────────────────────────────────
+router.get('/admin/companies',                  requireAuth, requireAdmin, AdminController.listCompanies);
+router.get('/admin/companies/:id',              requireAuth, requireAdmin, AdminController.showCompany);
+router.post('/admin/companies/:id/approve',     requireAuth, requireAdmin, AdminController.approveCompany);
+router.post('/admin/companies/:id/reject',      requireAuth, requireAdmin, AdminController.rejectCompany);
 
 
 

@@ -51,10 +51,23 @@
         : "light";
     }
 
-    updateThemeLabel(theme)
-
+    updateThemeLabel(mode);
     document.documentElement.setAttribute("data-bs-theme", theme);
   }
+
+  function updateThemeLabel(mode) {
+    const label = document.getElementById('themeLabel');
+    if (!label) return;
+    label.innerText =
+      mode === 'light' ? 'Light' :
+      mode === 'dark'  ? 'Dark'  : 'System';
+  }
+
+  // apply saved theme on page load
+  window.addEventListener('DOMContentLoaded', () => {
+    const saved = localStorage.getItem('theme') || 'system';
+    setTheme(saved);
+  });
 </script>
 
 

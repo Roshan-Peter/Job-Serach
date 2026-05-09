@@ -30,21 +30,23 @@
       <!-- links -->
       <div class="col-md-4 text-center">
         <ul class="list-inline mb-0">
-          <li class="list-inline-item">
-            <a href="/" class="text-muted text-decoration-none small">Home</a>
-          </li>
-          <li class="list-inline-item text-muted">·</li>
-          <li class="list-inline-item">
-            <a href="#" class="text-muted text-decoration-none small">About</a>
-          </li>
-          <li class="list-inline-item text-muted">·</li>
-          <li class="list-inline-item">
-            <a href="#" class="text-muted text-decoration-none small">Contact</a>
-          </li>
-          <li class="list-inline-item text-muted">·</li>
-          <li class="list-inline-item">
-            <a href="#" class="text-muted text-decoration-none small">Privacy</a>
-          </li>
+          <% if( user && !user.isAdmin ) { %>
+            <li class="list-inline-item">
+              <a href="/" class="text-muted text-decoration-none small">Home</a>
+            </li>
+            <li class="list-inline-item text-muted">·</li>
+            <li class="list-inline-item">
+              <a href="#" class="text-muted text-decoration-none small">About</a>
+            </li>
+            <li class="list-inline-item text-muted">·</li>
+            <li class="list-inline-item">
+              <a href="#" class="text-muted text-decoration-none small">Contact</a>
+            </li>
+            <li class="list-inline-item text-muted">·</li>
+            <li class="list-inline-item">
+              <a href="#" class="text-muted text-decoration-none small">Privacy</a>
+            </li>
+          <% } %>
         </ul>
       </div>
 

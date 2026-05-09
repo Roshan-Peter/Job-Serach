@@ -1,7 +1,8 @@
 import UserService     from '../services/UserService.js';
 import OtpService      from '../services/OtpService.js';
 import LoginLogService from '../services/LoginLogService.js';
-import AdminService    from '../services/AdminService.js'; // ✅ new
+import AdminService    from '../services/AdminService.js';
+import User            from '../models/User.js'; // ✅ needed for 2FA check
 
 export default class AuthController {
 
@@ -71,8 +72,6 @@ export default class AuthController {
     }
 
     const user = await UserService.confirmEmail(email);
-
-    // ✅ check admin table after confirming email
     const adminRecord = await AdminService.findByUserId(user._id);
 
     req.session.user = {
@@ -80,8 +79,9 @@ export default class AuthController {
       name:             user.name,
       email:            user.email,
       isEmailConfirmed: true,
-      isAdmin:          !!adminRecord,                  // ✅
-      adminRole:        adminRecord?.role || null,      // ✅
+      isAdmin:          !!adminRecord,
+      adminRole:        adminRecord?.role || null,
+      twoFactorEnabled: user.twoFactorEnabled || false,
     };
 
     const redirect = adminRecord ? '/admin' : '/dashboard';
@@ -144,16 +144,11 @@ export default class AuthController {
 
       if (!user.isEmailConfirmed) {
         await LoginLogService.record({
-          email,
-          userId: user._id,
-          status: 'failed',
-          reason: 'Email not confirmed',
-          req,
+          email, userId: user._id,
+          status: 'failed', reason: 'Email not confirmed', req,
         });
-
         const otp = OtpService.generate(email);
         console.log(`OTP for unconfirmed user ${email}: ${otp}`);
-
         const message = 'Please confirm your email before logging in';
         if (isJson) return res.status(403).json({
           error: message,
@@ -162,27 +157,35 @@ export default class AuthController {
         return res.redirect(`/confirm-otp?email=${encodeURIComponent(email)}`);
       }
 
-      // ✅ look up admin table on every login
+      // ✅ fetch full user from DB to get 2FA fields
+      const fullUser    = await User.findById(user._id);
       const adminRecord = await AdminService.findByUserId(user._id);
 
       await LoginLogService.record({
-        email,
-        userId: user._id,
-        status: 'success',
-        reason: null,
-        req,
+        email, userId: user._id, status: 'success', reason: null, req,
       });
 
-      req.session.user = {
+      // ✅ build session data once
+      const sessionData = {
         _id:              user._id,
         name:             user.name,
         email:            user.email,
         isEmailConfirmed: user.isEmailConfirmed,
-        isAdmin:          !!adminRecord,             // ✅
-        adminRole:        adminRecord?.role || null, // ✅
+        isAdmin:          !!adminRecord,
+        adminRole:        adminRecord?.role    || null,
+        twoFactorEnabled: fullUser.twoFactorEnabled || false,
       };
 
-      // ✅ admins go to /admin, regular users go to /dashboard
+      // ✅ if 2FA is enabled hold in pendingUser and redirect to challenge
+      if (fullUser.twoFactorEnabled) {
+        req.session.pendingUser       = sessionData;
+        req.session.postLoginRedirect = req.query.next || (adminRecord ? '/admin' : '/dashboard');
+        if (isJson) return res.json({ success: true, redirect: '/account/2fa/challenge' });
+        return res.redirect('/account/2fa/challenge');
+      }
+
+      // no 2FA — log straight in
+      req.session.user = sessionData;
       const defaultRedirect = adminRecord ? '/admin' : '/dashboard';
       const next = req.query.next || defaultRedirect;
       if (isJson) return res.json({ success: true, redirect: next });
@@ -190,13 +193,11 @@ export default class AuthController {
 
     } catch (err) {
       await LoginLogService.record({
-        email,
-        userId: null,
+        email, userId: null,
         status: 'failed',
         reason: err.status === 401 ? 'Invalid credentials' : err.message,
         req,
       });
-
       const message = err.status === 401 ? 'Invalid email or password' : err.message || 'Error';
       if (isJson) return res.status(err.status || 400).json({ error: message });
       return res.status(err.status || 400).render('login', { error: message });

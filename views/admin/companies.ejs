@@ -1,0 +1,284 @@
+<%- include('../partials/header', { title: 'Manage Companies' }) %>
+<%- include('../partials/navbar') %>
+
+<main class="container-fluid py-4 px-4">
+
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="/admin" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+      <h2 class="fw-bold mb-0">Companies</h2>
+      <p class="text-muted small mb-0">Review and manage company registrations</p>
+    </div>
+  </div>
+
+  <!-- status filter tabs -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link <%= currentStatus === 'all' ? 'active' : '' %>" href="/admin/companies">
+        All <span class="badge bg-secondary ms-1"><%= counts.total %></span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= currentStatus === 'pending' ? 'active' : '' %>" href="/admin/companies?status=pending">
+        Pending <span class="badge bg-warning text-dark ms-1"><%= counts.pending %></span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= currentStatus === 'approved' ? 'active' : '' %>" href="/admin/companies?status=approved">
+        Approved <span class="badge bg-success ms-1"><%= counts.approved %></span>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link <%= currentStatus === 'rejected' ? 'active' : '' %>" href="/admin/companies?status=rejected">
+        Rejected <span class="badge bg-danger ms-1"><%= counts.rejected %></span>
+      </a>
+    </li>
+  </ul>
+
+  <% if (!companies.length) { %>
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-building fs-1 d-block mb-3 opacity-25"></i>
+      <p class="mb-0">No companies found</p>
+    </div>
+  <% } else { %>
+    <div class="card border-0 shadow-sm">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th class="small fw-semibold ps-3">Company</th>
+              <th class="small fw-semibold">Owner</th>
+              <th class="small fw-semibold">Industry</th>
+              <th class="small fw-semibold">Size</th>
+              <th class="small fw-semibold">Status</th>
+              <th class="small fw-semibold">Submitted</th>
+              <th class="small fw-semibold" style="min-width: 220px">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% companies.forEach(c => { %>
+              <tr id="row-<%= c._id %>">
+
+                <td class="ps-3">
+                  <div class="fw-semibold small"><%= c.name %></div>
+                  <a href="<%= c.website %>" target="_blank"
+                    class="text-muted text-decoration-none" style="font-size:11px">
+                    <i class="bi bi-link-45deg"></i><%= c.website %>
+                  </a>
+                </td>
+
+                <td>
+                  <div class="small fw-semibold"><%= c.owner?.name || '—' %></div>
+                  <div class="text-muted" style="font-size:11px"><%= c.owner?.email || '—' %></div>
+                </td>
+
+                <td class="small text-muted"><%= c.industry %></td>
+                <td class="small text-muted"><%= c.size %></td>
+
+                <td>
+                  <span class="badge status-badge-<%= c._id %>
+                    <%= c.status === 'approved' ? 'bg-success' :
+                       c.status === 'rejected'  ? 'bg-danger'  : 'bg-warning text-dark' %>">
+                    <i class="bi
+                      <%= c.status === 'approved' ? 'bi-check-circle' :
+                         c.status === 'rejected'  ? 'bi-x-circle'     : 'bi-clock-history' %> me-1"></i>
+                    <%= c.status.charAt(0).toUpperCase() + c.status.slice(1) %>
+                  </span>
+                </td>
+
+                <td class="small text-muted text-nowrap">
+                  <%= new Date(c.createdAt).toLocaleDateString() %>
+                </td>
+
+                <!-- ✅ actions with text labels -->
+                <td>
+                  <div class="d-flex gap-2 align-items-center flex-wrap">
+
+                    <a href="/admin/companies/<%= c._id %>"
+                      class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1">
+                      <i class="bi bi-eye"></i>
+                      <span>View</span>
+                    </a>
+
+                    <% if (c.status !== 'approved') { %>
+                      <button class="btn btn-success btn-sm d-flex align-items-center gap-1 approve-btn"
+                        data-id="<%= c._id %>">
+                        <i class="bi bi-check-lg"></i>
+                        <span>Approve</span>
+                      </button>
+                    <% } %>
+
+                    <% if (c.status !== 'rejected') { %>
+                      <button class="btn btn-danger btn-sm d-flex align-items-center gap-1 reject-btn"
+                        data-id="<%= c._id %>" data-name="<%= c.name %>">
+                        <i class="bi bi-x-lg"></i>
+                        <span>Reject</span>
+                      </button>
+                    <% } %>
+
+                  </div>
+                </td>
+
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <% } %>
+</main>
+
+<!-- reject reason modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title text-danger">
+          <i class="bi bi-x-circle me-2"></i>Reject Company
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-3">
+          Rejecting <strong id="rejectCompanyName"></strong>.
+          Please provide a reason that will be shown to the owner.
+        </p>
+        <div id="rejectError" class="alert alert-danger d-none"></div>
+        <label class="form-label fw-semibold">
+          Rejection Reason <span class="text-danger">*</span>
+        </label>
+        <textarea id="rejectReason" class="form-control" rows="3"
+          placeholder="e.g. Insufficient company information provided…"></textarea>
+      </div>
+      <div class="modal-footer border-0">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button id="confirmRejectBtn" class="btn btn-danger d-flex align-items-center gap-2">
+          <i class="bi bi-x-circle"></i>
+          <span id="rejectBtnText">Confirm Rejection</span>
+          <span id="rejectSpinner" class="spinner-border spinner-border-sm d-none"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentRejectId = null;
+
+  // ── approve ────────────────────────────────────────────────────────────────
+  document.querySelectorAll('.approve-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Approving…';
+
+      try {
+        const res  = await fetch(`/admin/companies/${id}/approve`, { method: 'POST' });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Failed to approve');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-check-lg"></i> <span>Approve</span>';
+        } else {
+          updateRowStatus(id, 'approved');
+        }
+      } catch {
+        alert('Network error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-lg"></i> <span>Approve</span>';
+      }
+    });
+  });
+
+  // ── open reject modal ──────────────────────────────────────────────────────
+  document.querySelectorAll('.reject-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentRejectId = btn.dataset.id;
+      document.getElementById('rejectCompanyName').textContent = btn.dataset.name;
+      document.getElementById('rejectReason').value = '';
+      document.getElementById('rejectError').classList.add('d-none');
+      new bootstrap.Modal(document.getElementById('rejectModal')).show();
+    });
+  });
+
+  // ── confirm reject ─────────────────────────────────────────────────────────
+  document.getElementById('confirmRejectBtn').addEventListener('click', async () => {
+    const reason  = document.getElementById('rejectReason').value.trim();
+    const errEl   = document.getElementById('rejectError');
+    const btnText = document.getElementById('rejectBtnText');
+    const spinner = document.getElementById('rejectSpinner');
+    const btn     = document.getElementById('confirmRejectBtn');
+
+    if (!reason) {
+      errEl.textContent = 'Please provide a rejection reason';
+      errEl.classList.remove('d-none');
+      return;
+    }
+
+    btn.disabled = true;
+    btnText.textContent = 'Rejecting…';
+    spinner.classList.remove('d-none');
+    errEl.classList.add('d-none');
+
+    try {
+      const res  = await fetch(`/admin/companies/${currentRejectId}/reject`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ reason }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        errEl.textContent = data.error || 'Failed to reject';
+        errEl.classList.remove('d-none');
+      } else {
+        bootstrap.Modal.getInstance(document.getElementById('rejectModal')).hide();
+        updateRowStatus(currentRejectId, 'rejected');
+      }
+    } catch {
+      errEl.textContent = 'Network error';
+      errEl.classList.remove('d-none');
+    } finally {
+      btn.disabled = false;
+      btnText.textContent = 'Confirm Rejection';
+      spinner.classList.add('d-none');
+    }
+  });
+
+  // ── update row in place without reload ─────────────────────────────────────
+  function updateRowStatus(id, status) {
+    const row = document.getElementById(`row-${id}`);
+    if (!row) return;
+
+    // update status badge
+    const badge = row.querySelector(`[class*="status-badge"]`);
+    if (badge) {
+      badge.className = `badge status-badge-${id} ${
+        status === 'approved' ? 'bg-success' :
+        status === 'rejected' ? 'bg-danger'  : 'bg-warning text-dark'
+      }`;
+      badge.innerHTML = `
+        <i class="bi ${
+          status === 'approved' ? 'bi-check-circle' :
+          status === 'rejected' ? 'bi-x-circle'     : 'bi-clock-history'
+        } me-1"></i>
+        ${status.charAt(0).toUpperCase() + status.slice(1)}
+      `;
+    }
+
+    // remove the button that's no longer relevant
+    const actionDiv = row.querySelector('td:last-child div');
+    if (actionDiv) {
+      if (status === 'approved') {
+        actionDiv.querySelector('.approve-btn')?.remove();
+      }
+      if (status === 'rejected') {
+        actionDiv.querySelector('.reject-btn')?.remove();
+      }
+    }
+  }
+</script>
+
+<%- include('../partials/footer') %>

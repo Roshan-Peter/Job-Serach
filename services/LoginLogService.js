@@ -8,7 +8,7 @@ export default class LoginLogService {
         userId,
         status,
         reason,
-        ip:        req.ip || req.headers['x-forwarded-for'] || null,
+        ip: req.ip || req.headers['x-forwarded-for'] || null,
         userAgent: req.headers['user-agent'] || null,
       });
     } catch (err) {

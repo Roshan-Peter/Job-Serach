@@ -1,0 +1,156 @@
+<%- include('../partials/header', { title: 'Set Up 2FA' }) %>
+<%- include('../partials/navbar') %>
+
+<main class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-5">
+
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="/account/settings" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+          <h2 class="fw-bold mb-0">Set Up Authenticator</h2>
+          <p class="text-muted small mb-0">Two-factor authentication</p>
+        </div>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert alert-danger alert-dismissible fade show">
+          <i class="bi bi-exclamation-circle me-2"></i><%= error %>
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      <% } %>
+
+      <!-- step 1 -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body p-4">
+          <h6 class="fw-bold mb-3">
+            <span class="badge bg-primary rounded-circle me-2">1</span>
+            Install an authenticator app
+          </h6>
+          <p class="text-muted small mb-2">Download one of these on your phone:</p>
+          <div class="d-flex gap-2 flex-wrap">
+            <span class="badge bg-light text-dark border">
+              <i class="bi bi-google me-1"></i>Google Authenticator
+            </span>
+            <span class="badge bg-light text-dark border">
+              <i class="bi bi-microsoft me-1"></i>Microsoft Authenticator
+            </span>
+            <span class="badge bg-light text-dark border">Authy</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- step 2 -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body p-4">
+          <h6 class="fw-bold mb-3">
+            <span class="badge bg-primary rounded-circle me-2">2</span>
+            Scan the QR code
+          </h6>
+          <% if (qrCodeUrl) { %>
+            <div class="text-center mb-3">
+              <img src="<%= qrCodeUrl %>" alt="QR Code" class="border rounded p-2" style="width:200px;height:200px"/>
+            </div>
+          <% } %>
+          <p class="text-muted small mb-1">Or enter this key manually:</p>
+          <div class="input-group input-group-sm">
+            <input type="text" class="form-control font-monospace" id="secretKey"
+              value="<%= secret %>" readonly />
+            <button class="btn btn-outline-secondary" type="button" onclick="copySecret()">
+              <i class="bi bi-copy"></i>
+            </button>
+          </div>
+          <small id="copyMsg" class="text-success d-none">Copied!</small>
+        </div>
+      </div>
+
+      <!-- step 3 -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h6 class="fw-bold mb-3">
+            <span class="badge bg-primary rounded-circle me-2">3</span>
+            Enter the 6-digit code
+          </h6>
+          <p class="text-muted small mb-3">
+            Enter the code shown in your authenticator app to confirm setup.
+          </p>
+
+          <div id="formError" class="alert alert-danger d-none"></div>
+
+          <form id="setupForm">
+            <div class="mb-3">
+              <input id="token" type="text" class="form-control form-control-lg text-center fw-bold ls-4"
+                placeholder="_ _ _ _ _ _"
+                maxlength="6"
+                inputmode="numeric"
+                autocomplete="one-time-code"
+                required />
+            </div>
+            <div class="d-grid">
+              <button id="submitBtn" type="submit" class="btn btn-primary btn-lg">
+                <span id="btnText"><i class="bi bi-shield-check me-2"></i>Enable 2FA</span>
+                <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script>
+  // only allow digits
+  document.getElementById('token').addEventListener('input', e => {
+    e.target.value = e.target.value.replace(/\D/g, '');
+  });
+
+  function copySecret() {
+    navigator.clipboard.writeText(document.getElementById('secretKey').value).then(() => {
+      const msg = document.getElementById('copyMsg');
+      msg.classList.remove('d-none');
+      setTimeout(() => msg.classList.add('d-none'), 1500);
+    });
+  }
+
+  document.getElementById('setupForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token   = document.getElementById('token').value.trim();
+    const errEl   = document.getElementById('formError');
+    const btn     = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const spinner = document.getElementById('btnSpinner');
+
+    errEl.classList.add('d-none');
+    btn.disabled = true;
+    btnText.innerHTML = 'Verifying…';
+    spinner.classList.remove('d-none');
+
+    try {
+      const res  = await fetch('/account/2fa/enable', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body:    JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        errEl.textContent = data.error || 'Verification failed';
+        errEl.classList.remove('d-none');
+      } else {
+        window.location.href = '/account/2fa/manage?success=enabled';
+      }
+    } catch {
+      errEl.textContent = 'Network error. Please try again.';
+      errEl.classList.remove('d-none');
+    } finally {
+      btn.disabled = false;
+      btnText.innerHTML = '<i class="bi bi-shield-check me-2"></i>Enable 2FA';
+      spinner.classList.add('d-none');
+    }
+  });
+</script>
+
+<%- include('../partials/footer') %>

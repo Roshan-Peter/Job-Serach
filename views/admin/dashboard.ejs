@@ -21,6 +21,19 @@
     </form>
   </div>
 
+
+
+  <% if (stats.pendingCompanies > 0) { %>
+  <div class="alert alert-warning d-flex align-items-center gap-2 mb-4" role="alert">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <div>
+      <strong><%= stats.pendingCompanies %> company registration<%= stats.pendingCompanies > 1 ? 's' : '' %></strong>
+      awaiting review.
+      <a href="/admin/companies?status=pending" class="alert-link ms-1">Review now →</a>
+    </div>
+  </div>
+<% } %>
+
   <!-- ── STAT CARDS ── -->
   <div class="row g-3 mb-4">
 
