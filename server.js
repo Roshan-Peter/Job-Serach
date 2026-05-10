@@ -4,6 +4,8 @@ import connectDB from './Database/mongoDB.js';
 import index from './routes/index.js';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
+import http from "http";
+import WbService from './services/WBService.js';
 
 dotenv.config();
 
@@ -18,22 +20,27 @@ app.set('views', './views');
 
 await connectDB();
 
-app.use(session({
+const sessionMiddleware = session({
   secret: SESSION_SECRET || 'snfdlsinvdlxkvdxklnvdxzlbvb',
+
   resave: false,
   saveUninitialized: false,
+
   store: MongoStore.create({
     mongoUrl: MONGO_URI,
     collectionName: 'sessions',
-    ttl: 60 * 60 * 24 * 7,  
+    ttl: 60 * 60 * 24 * 7,
   }),
+
   cookie: {
-    httpOnly: true,           
-    secure: process.env.NODE_ENV === 'production', 
-    maxAge: 1000 * 60 * 60 * 24 * 7, 
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 1000 * 60 * 60 * 24 * 7,
     sameSite: 'lax',
   },
-}));
+});
+
+app.use(sessionMiddleware);
 
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
@@ -47,4 +54,15 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Server error' });
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+const server = http.createServer(app);
+
+const websocketService = new WbService(server, sessionMiddleware);
+
+
+server.listen(PORT,"10.0.0.117", () => console.log(`Server running on port ${PORT}`));
+
+
+
+export default websocketService;

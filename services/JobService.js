@@ -39,4 +39,26 @@ export default class JobService {
     }
     return job;
   }
+
+  static async getApplicationById(applicationId) {
+  const application = await JobApply.findById(applicationId)
+    .populate('userId', '-password')
+    .populate('jobId')
+    .populate('resumeId'); // ✅ populate resume
+
+  if (!application) {
+    const err = new Error('Application not found');
+    err.status = 404;
+    throw err;
+  }
+  return application;
+}
+
+
+  static async findJob(jobId, user){
+    return await Job.findOne({
+        _id: jobId,
+        postedBy: user._id
+      });
+  }
 }

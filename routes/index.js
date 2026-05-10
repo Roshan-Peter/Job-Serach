@@ -6,6 +6,8 @@ import { requireAuth, requireGuest, requireConfirmedEmail, requireAdmin, require
 import AccountSettingsController from '../controllers/AccountSettingsController.js';
 import AdminController from '../controllers/AdminController.js';
 import TwoFactorController from '../controllers/TwoFactorController.js';
+import ProfileController from '../controllers/ProfileController.js';
+import ResumeController from '../controllers/ResumeController.js';
 
 
 const router = express.Router();
@@ -16,6 +18,10 @@ router.get("/welcome", (req, res) => { res.redirect("/dashboard"); });
 
 
 router.get('/', (req, res) => new HomeController(req, res).index());
+router.get('/about', HomeController.about )
+router.get('/privacy', HomeController.getPrivacyPolicyPage )
+router.get("/contact", HomeController.getContactPage);
+router.post("/contact", HomeController.submitContactForm);
 router.get('/register',     requireGuest, AuthController.showRegister);
 router.post('/register',    requireGuest, AuthController.register);
 router.get('/login',        requireGuest, AuthController.showLogin);
@@ -50,6 +56,11 @@ router.post('/logout', AuthController.logout);
 router.get('/jobs/create',    requireAuth, requireConfirmedEmail, JobController.showCreate);
 router.post('/jobs',          requireAuth, requireConfirmedEmail, JobController.create);
 router.post('/jobs/:id/delete', requireAuth,                      JobController.remove);
+router.post('/jobs/:id/apply', requireAuth, JobController.applyForJob);
+router.get('/applications/me', requireAuth, JobController.getMyApplications);
+router.get('/my/job/posting', requireAuth, requireConfirmedEmail, JobController.myJobPostings);
+router.get('/jobs/:id/applications', requireAuth, requireConfirmedEmail, JobController.viewApplicants);
+router.get('/applications/:id', requireAuth, requireConfirmedEmail, JobController.viewApplicationDetail);
 
 // ─── jobs (public) ────────────────────────────────────────────────────────
 
@@ -59,6 +70,26 @@ router.get('/jobs/:id',      JobController.show);
 
 router.get('/account-settings', requireAuth, requireConfirmedEmail, AccountSettingsController.AccountSettings)
 router.post('/account/company/register', requireAuth, requireConfirmedEmail, AccountSettingsController.registerCompany);
+//router.post('/jobs/applications/:id/status', requireAuth, JobController.updateApplicationStatus);
+
+
+
+// ─── profile ──────────────────────────────────────────────────────────────
+router.post('/profile/experience',          requireAuth, ProfileController.addExperience);
+router.put('/profile/experience/:id',       requireAuth, ProfileController.updateExperience);
+router.delete('/profile/experience/:id',    requireAuth, ProfileController.deleteExperience);
+
+router.post('/profile/education',           requireAuth, ProfileController.addEducation);
+router.put('/profile/education/:id',        requireAuth, ProfileController.updateEducation);
+router.delete('/profile/education/:id',     requireAuth, ProfileController.deleteEducation);
+
+router.post('/profile/jobs',                requireAuth, ProfileController.addJob);
+router.put('/profile/jobs/:id',             requireAuth, ProfileController.updateJob);
+router.delete('/profile/jobs/:id',          requireAuth, ProfileController.deleteJob);
+
+router.post('/profile',                     requireAuth, ProfileController.updateProfile);
+router.get('/profile',  requireAuth, requireConfirmedEmail, ProfileController.showProfile);
+router.get("/profile/:publicId", ProfileController.getPublicProfile);
 
 
 // ─── admin ────────────────────────────────────────────────────────────────
@@ -82,6 +113,11 @@ router.post('/admin/companies/:id/approve',     requireAuth, requireAdmin, Admin
 router.post('/admin/companies/:id/reject',      requireAuth, requireAdmin, AdminController.rejectCompany);
 
 
-
+router.post("/resume/create", ResumeController.create);
+router.get("/resumes", ResumeController.myResumes);
+router.get("/resume/create", ResumeController.createPage);
+router.get("/resume/:id", ResumeController.single);
+router.delete("/resume/:id", ResumeController.delete);
+router.get("/resume/view/:id", requireAuth, requireConfirmedEmail, JobController.showResume)
 
 export default router;

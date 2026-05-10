@@ -1,0 +1,47 @@
+<%- include('partials/header', { title: 'Page Not Found' }) %>
+<%- include('partials/navbar') %>
+
+<main class="container d-flex align-items-center justify-content-center" style="min-height: 80vh;">
+
+  <div class="text-center">
+
+    <!-- ERROR CODE -->
+    <h1 class="display-1 fw-bold text-primary">404</h1>
+
+    <!-- MESSAGE -->
+    <h3 class="fw-bold mb-3">Page Not Found</h3>
+
+    <p class="text-muted mb-4">
+      The page you are looking for doesn't exist or has been moved.
+    </p>
+
+    <!-- ILLUSTRATION (simple emoji style fallback) -->
+    <div class="mb-4" style="font-size: 60px;">
+      🧭
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="d-flex justify-content-center gap-2">
+
+      <a href="/" class="btn btn-primary px-4">
+        Go Home
+      </a>
+
+      <a href="/contact" class="btn btn-outline-secondary px-4">
+        Contact Support
+      </a>
+
+    </div>
+
+    <!-- OPTIONAL DEBUG INFO -->
+    <% if (message) { %>
+      <p class="text-muted mt-4 small">
+        <%= message %>
+      </p>
+    <% } %>
+
+  </div>
+
+</main>
+
+<%- include('partials/footer') %>

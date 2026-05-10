@@ -1,204 +1,512 @@
 <%- include('../partials/header', { title: job.title }) %>
-<%- include('../partials/navbar') %>
+  <%- include('../partials/navbar') %>
 
-<main class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
+    <main class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
 
-      <a href="/jobs" class="btn btn-outline-secondary btn-sm mb-4">
-        <i class="bi bi-arrow-left me-1"></i>Back to jobs
-      </a>
+          <a href="/jobs" class="btn btn-outline-secondary btn-sm mb-4">
+            <i class="bi bi-arrow-left me-1"></i>Back to jobs
+          </a>
 
-      <!-- header card -->
-      <div class="card shadow-sm border-0 mb-4">
-        <div class="card-body p-4">
-          <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-            <div>
-              <h2 class="fw-bold mb-1"><%= job.title %></h2>
-              <p class="text-muted mb-2">
-                <i class="bi bi-building me-1"></i><%= job.company %>
-                <span class="mx-2">·</span>
-                <i class="bi bi-geo-alt me-1"></i><%= job.location %>
+          <!-- header card -->
+          <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                  <h2 class="fw-bold mb-1">
+                    <%= job.title %>
+                  </h2>
+                  <p class="text-muted mb-2">
+                    <i class="bi bi-building me-1"></i>
+                    <%= job.company %>
+                      <span class="mx-2">·</span>
+                      <i class="bi bi-geo-alt me-1"></i>
+                      <%= job.location %>
+                  </p>
+                  <div class="d-flex flex-wrap gap-2">
+                    <span class="badge bg-primary bg-opacity-10 text-primary">
+                      <%= job.type %>
+                    </span>
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary">
+                      <%= job.experience %>
+                    </span>
+                    <% if (job.salary && (job.salary.min || job.salary.max)) { %>
+                      <span class="badge bg-success bg-opacity-10 text-success">
+                        <i class="bi bi-cash me-1"></i>
+                        <%= job.salary.currency %>
+                          <%= job.salary.min ? job.salary.min.toLocaleString() : '' %>
+                            <% if (job.salary.min && job.salary.max) { %> – <% } %>
+                                <%= job.salary.max ? job.salary.max.toLocaleString() : '' %>
+                                  / <%= job.salary.period %>
+                      </span>
+                      <% } %>
+                        <span
+                          class="badge <%= job.applyType === 'easy_apply' ? 'bg-warning bg-opacity-10 text-warning' : 'bg-info bg-opacity-10 text-info' %>">
+                          <i
+                            class="bi <%= job.applyType === 'easy_apply' ? 'bi-lightning-charge-fill' : 'bi-box-arrow-up-right' %> me-1"></i>
+                          <%= job.applyType==='easy_apply' ? 'Easy Apply' : 'External' %>
+                        </span>
+                  </div>
+                </div>
+
+                <!-- apply button -->
+                <div class="text-end">
+                  <% if (job.applyType==='easy_apply' ) { %>
+                    <button class="btn btn-primary btn-lg px-4"
+                      onclick="document.getElementById('easyApplySection').scrollIntoView({ behavior: 'smooth' })">
+                      <i class="bi bi-lightning-charge-fill me-2"></i>Easy Apply
+                    </button>
+                    <% } else { %>
+                      <a href="<%= job.externalUrl %>" target="_blank" rel="noopener noreferrer"
+                        class="btn btn-outline-primary btn-lg px-4">
+                        <i class="bi bi-box-arrow-up-right me-2"></i>Apply Now
+                      </a>
+                      <% } %>
+                        <p class="text-muted small mt-2 mb-0">
+                          Posted <%= new Date(job.createdAt).toLocaleDateString() %>
+                            by <a href="/profile/<%= publicId %>">
+                              <%= job.postedBy.name %>
+                            </a>
+                        </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- description -->
+          <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header fw-semibold py-3">
+              <i class="bi bi-file-text me-2 text-primary"></i>Job Description
+            </div>
+            <div class="card-body p-4">
+              <p style="white-space: pre-line">
+                <%= job.description %>
               </p>
-              <div class="d-flex flex-wrap gap-2">
-                <span class="badge bg-primary bg-opacity-10 text-primary"><%= job.type %></span>
-                <span class="badge bg-secondary bg-opacity-10 text-secondary"><%= job.experience %></span>
-                <% if (job.salary && (job.salary.min || job.salary.max)) { %>
-                  <span class="badge bg-success bg-opacity-10 text-success">
-                    <i class="bi bi-cash me-1"></i>
-                    <%= job.salary.currency %>
-                    <%= job.salary.min ? job.salary.min.toLocaleString() : '' %>
-                    <% if (job.salary.min && job.salary.max) { %> – <% } %>
-                    <%= job.salary.max ? job.salary.max.toLocaleString() : '' %>
-                    / <%= job.salary.period %>
-                  </span>
+            </div>
+          </div>
+
+          <!-- requirements -->
+          <% if (job.requirements && job.requirements.length) { %>
+            <div class="card shadow-sm border-0 mb-4">
+              <div class="card-header fw-semibold py-3">
+                <i class="bi bi-list-check me-2 text-primary"></i>Requirements
+              </div>
+              <div class="card-body p-4">
+                <ul class="mb-0">
+                  <% job.requirements.forEach(req=> { %>
+                    <li class="mb-2">
+                      <%= req %>
+                    </li>
+                    <% }) %>
+                </ul>
+              </div>
+            </div>
+            <% } %>
+
+              <!-- skills -->
+              <% if (job.skills && job.skills.length) { %>
+                <div class="card shadow-sm border-0 mb-4">
+                  <div class="card-header fw-semibold py-3">
+                    <i class="bi bi-tags me-2 text-primary"></i>Skills
+                  </div>
+
+                  <div class="card-body p-4">
+                    <div class="d-flex flex-wrap gap-2">
+
+                      <% job.skills.forEach(skill=> { %>
+                        <span class="badge bg-light text-dark border skill-badge">
+                          <%= skill %>
+                        </span>
+                        <% }) %>
+
+                    </div>
+                  </div>
+                </div>
                 <% } %>
-                <span class="badge <%= job.applyType === 'easy_apply' ? 'bg-warning bg-opacity-10 text-warning' : 'bg-info bg-opacity-10 text-info' %>">
-                  <i class="bi <%= job.applyType === 'easy_apply' ? 'bi-lightning-charge-fill' : 'bi-box-arrow-up-right' %> me-1"></i>
-                  <%= job.applyType === 'easy_apply' ? 'Easy Apply' : 'External' %>
-                </span>
-              </div>
-            </div>
+                  <!-- easy apply form -->
+                  <!-- easy apply form -->
+                  <% if (job.applyType==='easy_apply' ) { %>
+                    <div class="card shadow-sm border-0 mb-4" id="easyApplySection">
+                      <div class="card-header fw-semibold py-3">
+                        <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Easy Apply
+                      </div>
+                      <div class="card-body p-4">
 
-            <!-- apply button -->
-            <div class="text-end">
-              <% if (job.applyType === 'easy_apply') { %>
-                <button class="btn btn-primary btn-lg px-4"
-                  onclick="document.getElementById('easyApplySection').scrollIntoView({ behavior: 'smooth' })">
-                  <i class="bi bi-lightning-charge-fill me-2"></i>Easy Apply
-                </button>
-              <% } else { %>
-                <a href="<%= job.externalUrl %>" target="_blank" rel="noopener noreferrer"
-                  class="btn btn-outline-primary btn-lg px-4">
-                  <i class="bi bi-box-arrow-up-right me-2"></i>Apply Now
-                </a>
-              <% } %>
-              <p class="text-muted small mt-2 mb-0">
-                Posted <%= new Date(job.createdAt).toLocaleDateString() %>
-                by <a href="/profile/<%= job.postedBy.publicId %>"><%= job.postedBy.name %></a>
-              </p>
-            </div>
-          </div>
+                        <% if (!user) { %>
+                          <!-- not logged in -->
+                          <div class="alert alert-info d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <div>
+                              Please <a href="/login?next=/jobs/<%= job._id %>" class="alert-link">log in</a>
+                              to apply for this job.
+                            </div>
+                          </div>
+
+                          <% } else if (hasApplied) { %>
+                            <!-- already applied -->
+                            <div class="alert alert-success d-flex align-items-center gap-2">
+                              <i class="bi bi-check-circle-fill"></i>
+                              <div>You have already applied for this job.</div>
+                            </div>
+
+                            <% } else { %>
+                              <!-- apply form -->
+                              <div id="applyError" class="alert alert-danger  d-none"></div>
+                              <div id="applySuccess" class="alert alert-success d-none">
+                                <i class="bi bi-check-circle me-2"></i>Application submitted successfully!
+                              </div>
+
+                              <form id="applyForm">
+
+                                <div class="row g-3">
+
+                                  <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                      Full Name <span class="text-danger">*</span>
+                                    </label>
+                                    <input name="name" type="text" class="form-control" value="<%= user.name %>"
+                                      required />
+                                  </div>
+
+                                  <div class="col-md-6">
+                                    <label class="form-label fw-semibold">
+                                      Email <span class="text-danger">*</span>
+                                    </label>
+                                    <input name="email" type="email" class="form-control" value="<%= user.email %>"
+                                      required />
+                                  </div>
+
+                                  <div class="col-md-6">
+                                    <label class="form-label fw-semibold">Phone</label>
+                                    <input name="number" type="tel" class="form-control"
+                                      placeholder="+1 234 567 8900" />
+                                  </div>
+
+                                  <div class="col-md-6">
+                                    <label class="form-label fw-semibold">LinkedIn / Portfolio URL</label>
+                                    <input name="url" type="url" class="form-control"
+                                      placeholder="https://linkedin.com/in/yourname" />
+                                  </div>
+
+                                  <!-- ✅ resume dropdown -->
+                                  <div class="col-12">
+                                    <label class="form-label fw-semibold">
+                                      Resume <span class="text-danger">*</span>
+                                    </label>
+
+                                    <% if (resumes && resumes.length) { %>
+                                      <select name="resumeId" id="resumeSelect" class="form-select" required>
+                                        <option value="">— Select a resume —</option>
+                                        <% resumes.forEach(r=> { %>
+                                          <option value="<%= r._id %>">
+                                            <%= r.title %>
+                                              <% if (r.updatedAt) { %>
+                                                · Updated <%= new Date(r.updatedAt).toLocaleDateString() %>
+                                                  <% } %>
+                                          </option>
+                                          <% }) %>
+                                      </select>
+                                      <div class="form-text d-flex align-items-center justify-content-between mt-1">
+                                        <span>Select which resume to attach to this application.</span>
+                                        <a href="/resume/create" target="_blank" class="text-decoration-none small">
+                                          <i class="bi bi-plus-circle me-1"></i>Create new resume
+                                        </a>
+                                      </div>
+
+                                      <!-- resume preview panel -->
+                                      <div id="resumePreview" class="border rounded-3 p-3 mt-3 d-none">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                          <div>
+                                            <div class="fw-semibold small" id="previewTitle"></div>
+                                            <div class="text-muted small" id="previewMeta"></div>
+                                          </div>
+                                          <a id="previewLink" href="#" target="_blank"
+                                            class="btn btn-outline-secondary btn-sm">
+                                            <i class="bi bi-eye me-1"></i>Preview
+                                          </a>
+                                        </div>
+                                      </div>
+
+                                      <% } else { %>
+                                        <!-- no resumes yet -->
+                                        <div class="alert alert-warning d-flex align-items-start gap-2 mb-0">
+                                          <i class="bi bi-exclamation-triangle-fill mt-1 flex-shrink-0"></i>
+                                          <div>
+                                            You don't have any resumes yet.
+                                            <a href="/resume/create" class="alert-link">
+                                              Create a resume
+                                            </a>
+                                            before applying.
+                                          </div>
+                                        </div>
+                                        <% } %>
+                                  </div>
+
+                                  <div class="col-12">
+                                    <label class="form-label fw-semibold">Cover Letter</label>
+                                    <textarea name="coverLetter" class="form-control" rows="5"
+                                      placeholder="Tell us why you're a great fit for this role…"></textarea>
+                                  </div>
+
+                                </div>
+
+                                <div class="mt-4">
+                                  <button type="submit" class="btn btn-primary px-5" id="applyBtn" <%=(!resumes ||
+                                    !resumes.length) ? 'disabled' : '' %>>
+                                    <span id="applyBtnText">
+                                      <i class="bi bi-send me-2"></i>Submit Application
+                                    </span>
+                                    <span id="applySpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+                                  </button>
+                                </div>
+
+                              </form>
+                              <% } %>
+
+                      </div>
+                    </div>
+                    <% } %>
+
+                      <!-- owner actions -->
+                      <% if (user && String(user._id)===String(job.postedBy._id)) { %>
+                        <div class="card border-danger border-opacity-25 mb-5">
+                          <div class="card-body d-flex justify-content-between align-items-center p-3">
+                            <span class="text-muted small">You posted this job</span>
+                            <form action="/jobs/<%= job._id %>/delete" method="post"
+                              onsubmit="return confirm('Delete this job posting?')">
+                              <button class="btn btn-outline-danger btn-sm">
+                                <i class="bi bi-trash me-1"></i>Delete
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                        <% } %>
+
         </div>
       </div>
+    </main>
 
-      <!-- description -->
-      <div class="card shadow-sm border-0 mb-4">
-        <div class="card-header fw-semibold py-3">
-          <i class="bi bi-file-text me-2 text-primary"></i>Job Description
-        </div>
-        <div class="card-body p-4">
-          <p style="white-space: pre-line"><%= job.description %></p>
-        </div>
-      </div>
+    <script>
+      // easy apply form submit (placeholder — hook to your Applications controller later)
+      // const applyForm = document.getElementById('applyForm');
+      // if (applyForm) {
+      //   applyForm.addEventListener('submit', async (e) => {
+      //     e.preventDefault();
+      //     const btn     = document.getElementById('applyBtn');
+      //     const btnText = document.getElementById('applyBtnText');
+      //     const spinner = document.getElementById('applySpinner');
+      //     const errEl   = document.getElementById('applyError');
+      //     const sucEl   = document.getElementById('applySuccess');
 
-      <!-- requirements -->
-      <% if (job.requirements && job.requirements.length) { %>
-        <div class="card shadow-sm border-0 mb-4">
-          <div class="card-header fw-semibold py-3">
-            <i class="bi bi-list-check me-2 text-primary"></i>Requirements
-          </div>
-          <div class="card-body p-4">
-            <ul class="mb-0">
-              <% job.requirements.forEach(req => { %>
-                <li class="mb-2"><%= req %></li>
-              <% }) %>
-            </ul>
-          </div>
-        </div>
-      <% } %>
+      //     btn.disabled = true;
+      //     btnText.innerHTML = 'Submitting…';
+      //     spinner.classList.remove('d-none');
+      //     errEl.classList.add('d-none');
 
-      <!-- skills -->
-      <% if (job.skills && job.skills.length) { %>
-        <div class="card shadow-sm border-0 mb-4">
-          <div class="card-header fw-semibold py-3">
-            <i class="bi bi-tags me-2 text-primary"></i>Skills
-          </div>
+      //     // TODO: POST to /jobs/<id>/apply when you build the Applications controller
+      //     await new Promise(r => setTimeout(r, 800)); // simulate
+      //     sucEl.classList.remove('d-none');
+      //     applyForm.reset();
 
-          <div class="card-body p-4">
-            <div class="d-flex flex-wrap gap-2">
+      //     btn.disabled = false;
+      //     btnText.innerHTML = '<i class="bi bi-send me-2"></i>Submit Application';
+      //     spinner.classList.add('d-none');
+      //   });
+      // }
 
-              <% job.skills.forEach(skill => { %>
-                <span class="badge bg-light text-dark border skill-badge">
-                  <%= skill %>
-                </span>
-              <% }) %>
 
-            </div>
-          </div>
-        </div>
-      <% } %>
-      <!-- easy apply form -->
-      <% if (job.applyType === 'easy_apply') { %>
-        <div class="card shadow-sm border-0 mb-4" id="easyApplySection">
-          <div class="card-header fw-semibold py-3">
-            <i class="bi bi-lightning-charge-fill me-2 text-warning"></i>Easy Apply
-          </div>
-          <div class="card-body p-4">
-            <div id="applyError" class="alert alert-danger d-none"></div>
-            <div id="applySuccess" class="alert alert-success d-none">
-              <i class="bi bi-check-circle me-2"></i>Application submitted successfully!
-            </div>
-            <form id="applyForm">
-              <div class="mb-3">
-                <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
-                <input name="name" type="text" class="form-control"
-                  value="<%= user ? user.name : '' %>" required />
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-                <input name="email" type="email" class="form-control"
-                  value="<%= user ? user.email : '' %>" required />
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold">Phone</label>
-                <input name="phone" type="tel" class="form-control" placeholder="+1 234 567 8900" />
-              </div>
-              <div class="mb-3">
-                <label class="form-label fw-semibold">LinkedIn / Portfolio URL</label>
-                <input name="portfolio" type="url" class="form-control"
-                  placeholder="https://linkedin.com/in/yourname" />
-              </div>
-              <div class="mb-4">
-                <label class="form-label fw-semibold">Cover Letter</label>
-                <textarea name="coverLetter" class="form-control" rows="5"
-                  placeholder="Tell us why you're a great fit for this role…"></textarea>
-              </div>
-              <button type="submit" class="btn btn-primary px-5" id="applyBtn">
-                <span id="applyBtnText"><i class="bi bi-send me-2"></i>Submit Application</span>
-                <span id="applySpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
-              </button>
-            </form>
-          </div>
-        </div>
-      <% } %>
+      // const applyForm = document.getElementById('applyForm');
 
-      <!-- owner actions -->
-      <% if (user && String(user._id) === String(job.postedBy._id)) { %>
-        <div class="card border-danger border-opacity-25 mb-5">
-          <div class="card-body d-flex justify-content-between align-items-center p-3">
-            <span class="text-muted small">You posted this job</span>
-            <form action="/jobs/<%= job._id %>/delete" method="post"
-              onsubmit="return confirm('Delete this job posting?')">
-              <button class="btn btn-outline-danger btn-sm">
-                <i class="bi bi-trash me-1"></i>Delete
-              </button>
-            </form>
-          </div>
-        </div>
-      <% } %>
+      // if (applyForm) {
 
-    </div>
-  </div>
-</main>
+      //   applyForm.addEventListener('submit', async (e) => {
 
-<script>
-  // easy apply form submit (placeholder — hook to your Applications controller later)
-  const applyForm = document.getElementById('applyForm');
-  if (applyForm) {
-    applyForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn     = document.getElementById('applyBtn');
-      const btnText = document.getElementById('applyBtnText');
-      const spinner = document.getElementById('applySpinner');
-      const errEl   = document.getElementById('applyError');
-      const sucEl   = document.getElementById('applySuccess');
+      //     e.preventDefault();
 
-      btn.disabled = true;
-      btnText.innerHTML = 'Submitting…';
-      spinner.classList.remove('d-none');
-      errEl.classList.add('d-none');
+      //     const pathParts = window.location.pathname.split('/');
 
-      // TODO: POST to /jobs/<id>/apply when you build the Applications controller
-      await new Promise(r => setTimeout(r, 800)); // simulate
-      sucEl.classList.remove('d-none');
-      applyForm.reset();
+      //     const jobId = pathParts[pathParts.length - 1];
 
-      btn.disabled = false;
-      btnText.innerHTML = '<i class="bi bi-send me-2"></i>Submit Application';
-      spinner.classList.add('d-none');
-    });
-  }
-</script>
+      //     const btn = document.getElementById('applyBtn');
+      //     const btnText = document.getElementById('applyBtnText');
+      //     const spinner = document.getElementById('applySpinner');
 
-<%- include('../partials/footer') %>
+      //     const errEl = document.getElementById('applyError');
+      //     const sucEl = document.getElementById('applySuccess');
+
+      //     errEl.classList.add('d-none');
+      //     sucEl.classList.add('d-none');
+
+      //     btn.disabled = true;
+
+      //     btnText.innerHTML = 'Submitting...';
+
+      //     spinner.classList.remove('d-none');
+
+      //     try {
+
+      //       const form = new FormData(applyForm);
+
+      //       const formData = {
+      //         name: form.get('name'),
+      //         email: form.get('email'),
+      //         number: form.get('number'),
+      //         url: form.get('url'),
+      //         coverLetter: form.get('coverLetter'),
+      //       };
+
+      //       const response = await fetch(
+      //         `/jobs/${jobId}/apply`,
+      //         {
+      //           method: 'POST',
+      //           headers: {
+      //             'Content-Type': 'application/json',
+      //           },
+      //           body: JSON.stringify(formData),
+      //         }
+      //       );
+
+      //       const data = await response.json();
+
+      //       if (!response.ok) {
+      //         throw new Error(data.error || 'Failed to apply');
+      //       }
+
+      //       sucEl.innerText =
+      //         data.message || 'Application submitted successfully';
+
+      //       sucEl.classList.remove('d-none');
+
+      //       applyForm.reset();
+
+      //     } catch (error) {
+
+      //       errEl.innerText = error.message;
+
+      //       errEl.classList.remove('d-none');
+
+      //     } finally {
+
+      //       btn.disabled = false;
+
+      //       btnText.innerHTML =
+      //         '<i class="bi bi-send me-2"></i>Submit Application';
+
+      //       spinner.classList.add('d-none');
+      //     }
+
+      //   });
+
+      //}
+
+
+
+      // ── resume preview on select ───────────────────────────────────────────────
+      const resumeSelect = document.getElementById('resumeSelect');
+      const resumePreview = document.getElementById('resumePreview');
+      const previewTitle = document.getElementById('previewTitle');
+      const previewMeta = document.getElementById('previewMeta');
+      const previewLink = document.getElementById('previewLink');
+
+      // build a map from the EJS data
+      const resumeMap = {};
+  <% if (resumes && resumes.length) { %>
+    <% resumes.forEach(r => { %>
+        resumeMap['<%= r._id %>'] = {
+          title: '<%= r.title %>',
+            updated: '<%= r.updatedAt ? new Date(r.updatedAt).toLocaleDateString() : "" %>',
+              url: '/resume/<%= r._id %>',
+      };
+    <% }) %>
+  <% } %>
+
+  if (resumeSelect) {
+        resumeSelect.addEventListener('change', () => {
+          const id = resumeSelect.value;
+          if (!id) {
+            resumePreview.classList.add('d-none');
+            return;
+          }
+          const r = resumeMap[id];
+          if (!r) return;
+          previewTitle.textContent = r.title;
+          previewMeta.textContent = r.updated ? `Last updated ${r.updated}` : '';
+          previewLink.href = r.url;
+          resumePreview.classList.remove('d-none');
+        });
+      }
+
+      // ── apply form submit ──────────────────────────────────────────────────────
+      const applyForm = document.getElementById('applyForm');
+
+      if (applyForm) {
+        applyForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const pathParts = window.location.pathname.split('/');
+          const jobId = pathParts[pathParts.length - 1];
+
+          const btn = document.getElementById('applyBtn');
+          const btnText = document.getElementById('applyBtnText');
+          const spinner = document.getElementById('applySpinner');
+          const errEl = document.getElementById('applyError');
+          const sucEl = document.getElementById('applySuccess');
+
+          errEl.classList.add('d-none');
+          sucEl.classList.add('d-none');
+          btn.disabled = true;
+          btnText.innerHTML = 'Submitting…';
+          spinner.classList.remove('d-none');
+
+          try {
+            const form = new FormData(applyForm);
+
+            // ✅ include selected resumeId
+            const payload = {
+              name: form.get('name'),
+              email: form.get('email'),
+              number: form.get('number'),
+              url: form.get('url'),
+              coverLetter: form.get('coverLetter'),
+              resumeId: form.get('resumeId'),  // ✅
+            };
+
+            // validate resume selected
+            if (!payload.resumeId) {
+              throw new Error('Please select a resume before submitting');
+            }
+
+            const res = await fetch(`/jobs/${jobId}/apply`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || 'Failed to apply');
+
+            sucEl.textContent = data.message || 'Application submitted successfully!';
+            sucEl.classList.remove('d-none');
+            applyForm.reset();
+            resumePreview.classList.add('d-none');
+
+            // disable button so they can't apply again
+            btn.disabled = true;
+            btnText.innerHTML = '<i class="bi bi-check-circle me-2"></i>Applied';
+
+          } catch (err) {
+            errEl.textContent = err.message;
+            errEl.classList.remove('d-none');
+          } finally {
+            if (!sucEl.classList.contains('d-none')) return;
+            btn.disabled = false;
+            btnText.innerHTML = '<i class="bi bi-send me-2"></i>Submit Application';
+            spinner.classList.add('d-none');
+          }
+        });
+      }
+    </script>
+
+    <%- include('../partials/footer') %>

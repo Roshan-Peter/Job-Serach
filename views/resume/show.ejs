@@ -1,0 +1,334 @@
+
+<style>
+  /* ── screen wrapper ── */
+  .page-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    padding: 24px 16px 48px;
+  }
+
+  /* ── A4 page ── */
+  .a4-page {
+    width: 210mm;
+    min-height: 297mm;
+    background: #ffffff;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    box-sizing: border-box;
+    padding: 16mm 18mm;
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 10.5pt;
+    line-height: 1.45;
+    color: #111111;
+    position: relative;
+  }
+
+  /* ── ATS: all text black, no background colors ── */
+  .resume-name {
+    font-size: 22pt;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin: 0 0 2px;
+    color: #000;
+    text-align: center;
+  }
+
+  .resume-headline {
+    font-size: 10.5pt;
+    color: #333;
+    text-align: center;
+    margin: 0 0 6px;
+  }
+
+  .contact-bar {
+    text-align: center;
+    font-size: 9.5pt;
+    color: #222;
+    margin-bottom: 10px;
+    border-bottom: 1.5pt solid #000;
+    padding-bottom: 8px;
+  }
+
+  .contact-bar span + span::before {
+    content: ' | ';
+    color: #555;
+  }
+
+  /* ── section headings ── */
+  .section {
+    margin-bottom: 10px;
+  }
+
+  .section-heading {
+    font-size: 11pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1pt solid #000;
+    padding-bottom: 2px;
+    margin: 0 0 6px;
+    color: #000;
+  }
+
+  /* ── experience / education items ── */
+  .item {
+    margin-bottom: 8px;
+  }
+
+  .item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .item-title {
+    font-weight: 700;
+    font-size: 10.5pt;
+    color: #000;
+    margin: 0;
+  }
+
+  .item-date {
+    font-size: 9.5pt;
+    color: #333;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .item-sub {
+    font-size: 10pt;
+    color: #333;
+    font-style: italic;
+    margin: 1px 0 3px;
+  }
+
+  .item-desc {
+    font-size: 10pt;
+    color: #222;
+    margin: 0;
+    padding-left: 12px;
+  }
+
+  .item-desc li {
+    margin-bottom: 2px;
+  }
+
+  /* ── skills ── */
+  .skills-list {
+    font-size: 10pt;
+    color: #111;
+    margin: 0;
+  }
+
+  /* ── summary ── */
+  .summary-text {
+    font-size: 10.5pt;
+    color: #111;
+    margin: 0;
+    text-align: justify;
+  }
+
+  /* ── two-column layout for sidebar sections ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 24px;
+  }
+
+  /* ── page break control ── */
+  .no-break {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .page-break {
+    break-after: page;
+    page-break-after: always;
+  }
+
+  /* ── print styles ── */
+  @media print {
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+
+    .page-wrapper {
+
+      padding: 0 !important;
+      gap: 0 !important;
+    }
+
+    .a4-page {
+      width: 210mm;
+      min-height: 297mm;
+      box-shadow: none !important;
+      padding: 16mm 18mm;
+      margin: 0;
+      break-after: page;
+      page-break-after: always;
+    }
+
+    .a4-page:last-child {
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+  }
+
+  /* ── screen only — scale down on small screens ── */
+  @media screen and (max-width: 240mm) {
+    .a4-page {
+      width: 100%;
+      min-height: auto;
+      padding: 8mm 6mm;
+    }
+  }
+</style>
+
+<div class="page-wrapper" id="resumePages">
+
+  <!-- ══ PAGE 1 ══ -->
+  <div class="a4-page">
+
+    <!-- header -->
+    <h1 class="resume-name"><%= userName %></h1>
+    <p class="resume-headline"><%= headline || '' %></p>
+    <div class="contact-bar">
+      <% if (resume.contact?.phone) { %>
+        <span><%= resume.contact.phone %></span>
+      <% } %>
+      <% if (resume.contact?.email) { %>
+        <span><%= resume.contact.email %></span>
+      <% } %>
+      <% if (resume.contact?.website) { %>
+        <span><%= resume.contact.website %></span>
+      <% } %>
+      <% if (resume.contact?.location) { %>
+        <span><%= resume.contact.location %></span>
+      <% } %>
+    </div>
+
+    <!-- summary -->
+    <% if (resume.summary) { %>
+      <div class="section no-break">
+        <p class="section-heading">Professional Summary</p>
+        <p class="summary-text"><%= resume.summary %></p>
+      </div>
+    <% } %>
+
+    <!-- experience -->
+    <% if (resume.experience && resume.experience.length) { %>
+      <div class="section">
+        <p class="section-heading">Work Experience</p>
+        <% resume.experience.forEach(exp => { %>
+          <div class="item no-break">
+            <div class="item-header">
+              <p class="item-title"><%= exp.role %></p>
+              <span class="item-date">
+                <%= exp.startDate %><% if (exp.endDate) { %> – <%= exp.endDate %><% } else { %> – Present<% } %>
+              </span>
+            </div>
+            <p class="item-sub"><%= exp.company %></p>
+            <% if (exp.description) { %>
+              <ul class="item-desc">
+                <% exp.description.split('\n').filter(l => l.trim()).forEach(line => { %>
+                  <li><%= line.trim() %></li>
+                <% }) %>
+              </ul>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <!-- education -->
+    <% if (resume.education && resume.education.length) { %>
+      <div class="section">
+        <p class="section-heading">Education</p>
+        <% resume.education.forEach(edu => { %>
+          <div class="item no-break">
+            <div class="item-header">
+              <p class="item-title"><%= edu.degree %></p>
+              <span class="item-date"><%= edu.year || '' %></span>
+            </div>
+            <p class="item-sub"><%= edu.institution %></p>
+            <% if (edu.grade) { %>
+              <p style="font-size:10pt; margin:0; color:#333">GPA / Grade: <%= edu.grade %></p>
+            <% } %>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <!-- skills -->
+    <% if (resume.skills && resume.skills.length) { %>
+      <div class="section no-break">
+        <p class="section-heading">Skills</p>
+        <p class="skills-list"><%= resume.skills.join(' · ') %></p>
+      </div>
+    <% } %>
+
+    <!-- certifications -->
+    <% if (resume.certifications && resume.certifications.length) { %>
+      <div class="section">
+        <p class="section-heading">Certifications</p>
+        <% resume.certifications.forEach(cert => { %>
+          <div class="item no-break">
+            <div class="item-header">
+              <p class="item-title"><%= cert.name %></p>
+              <span class="item-date"><%= cert.year || '' %></span>
+            </div>
+            <p class="item-sub"><%= cert.issuer %></p>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <!-- languages -->
+    <% if (resume.languages && resume.languages.length) { %>
+      <div class="section no-break">
+        <p class="section-heading">Languages</p>
+        <p class="skills-list"><%= resume.languages.map(l => `${l.name} (${l.level})`).join(' · ') %></p>
+      </div>
+    <% } %>
+
+  </div>
+  <!-- ══ END PAGE 1 ══ -->
+
+  <!--
+    If you have a second page of content (e.g. projects, publications)
+    add a second .a4-page block here. The print CSS will break it correctly.
+
+    <div class="a4-page">
+      ... additional content ...
+    </div>
+  -->
+
+</div>
+
+<script>
+  // auto-detect overflow and warn on screen
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.a4-page').forEach((page, i) => {
+      const mmToPx = 3.7795;
+      const maxH   = 297 * mmToPx;
+      if (page.scrollHeight > maxH + 10) {
+        console.warn(`Page ${i + 1} overflows A4 height. Consider splitting content.`);
+      }
+    });
+  });
+</script>
+
+
+

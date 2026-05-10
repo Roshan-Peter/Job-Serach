@@ -1,0 +1,346 @@
+<%- include('../partials/header', { title: 'Application Detail' }) %>
+<%- include('../partials/navbar') %>
+
+<main class="container py-5">
+
+  <!-- breadcrumb -->
+  <nav aria-label="breadcrumb" class="mb-4">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="/account/my-jobs" class="text-decoration-none">My Jobs</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="/jobs/<%= app.jobId._id %>/applicants" class="text-decoration-none">
+          Applicants
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        <%= app.userId.name %>
+      </li>
+    </ol>
+  </nav>
+
+  <!-- top header -->
+  <div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-4">
+      <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+        <div class="d-flex align-items-center gap-3">
+          <!-- avatar -->
+          <div class="rounded-circle bg-primary bg-opacity-10 text-primary
+                      d-flex align-items-center justify-content-center fw-bold flex-shrink-0"
+            style="width:56px;height:56px;font-size:20px">
+            <%= app.userId.name.charAt(0).toUpperCase() %>
+          </div>
+          <div>
+            <h4 class="fw-bold mb-0"><%= app.userId.name %></h4>
+            <p class="text-muted small mb-0">
+              Applied for
+              <strong><%= app.jobId.title %></strong>
+              · <%= new Date(app.createdAt).toLocaleDateString() %>
+            </p>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          <span class="badge px-3 py-2 rounded-pill fs-6
+            <%= app.status === 'accepted' ? 'bg-success' :
+               app.status === 'rejected'  ? 'bg-danger'  :
+               app.status === 'reviewed'  ? 'bg-info'    : 'bg-warning text-dark' %>"
+            id="statusBadge">
+            <i class="bi
+              <%= app.status === 'accepted' ? 'bi-check-circle' :
+                 app.status === 'rejected'  ? 'bi-x-circle'     :
+                 app.status === 'reviewed'  ? 'bi-eye'          : 'bi-clock-history' %> me-1"></i>
+            <%= app.status.charAt(0).toUpperCase() + app.status.slice(1) %>
+          </span>
+          <a href="/profile/<%= app.userId.publicId %>"
+            class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-person me-1"></i>View Profile
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- alert area -->
+  <div id="actionError"   class="alert alert-danger  d-none mb-3"></div>
+  <div id="actionSuccess" class="alert alert-success d-none mb-3"></div>
+
+  <div class="row g-4">
+
+    <!-- ── LEFT ── -->
+    <div class="col-lg-8">
+
+      <!-- applicant info -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header fw-semibold py-3 rounded-top-4">
+          <i class="bi bi-person-lines-fill me-2 text-primary"></i>Applicant Details
+        </div>
+        <div class="card-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="text-muted small mb-1">Full Name</div>
+              <div class="fw-semibold"><%= app.userId.name %></div>
+            </div>
+            <div class="col-md-6">
+              <div class="text-muted small mb-1">Email</div>
+              <div class="fw-semibold">
+                <a href="mailto:<%= app.email %>" class="text-decoration-none">
+                  <%= app.email %>
+                </a>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="text-muted small mb-1">Phone</div>
+              <div class="fw-semibold">
+                <% if (app.number) { %>
+                  <a href="tel:<%= app.number %>" class="text-decoration-none">
+                    <%= app.number %>
+                  </a>
+                <% } else { %>
+                  <span class="text-muted">Not provided</span>
+                <% } %>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="text-muted small mb-1">Website / Portfolio</div>
+              <div class="fw-semibold">
+                <% if (app.url) { %>
+                  <a href="<%= app.url %>" target="_blank"
+                    class="text-decoration-none text-truncate d-block"
+                    style="max-width:220px">
+                    <i class="bi bi-link-45deg me-1"></i><%= app.url %>
+                  </a>
+                <% } else { %>
+                  <span class="text-muted">Not provided</span>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- cover letter -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header fw-semibold py-3 rounded-top-4">
+          <i class="bi bi-envelope-open me-2 text-primary"></i>Cover Letter
+        </div>
+        <div class="card-body p-4">
+          <% if (app.coverLetter) { %>
+            <p class="mb-0" style="white-space:pre-line;line-height:1.8">
+              <%= app.coverLetter %>
+            </p>
+          <% } else { %>
+            <p class="text-muted mb-0 fst-italic">No cover letter provided.</p>
+          <% } %>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT ── -->
+    <div class="col-lg-4">
+
+      <!-- job info -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header  fw-semibold py-3 rounded-top-4">
+          <i class="bi bi-briefcase me-2 text-success"></i>Job Details
+        </div>
+        <div class="card-body p-4">
+          <div class="mb-3">
+            <div class="text-muted small mb-1">Title</div>
+            <div class="fw-semibold"><%= app.jobId.title %></div>
+          </div>
+          <div class="mb-3">
+            <div class="text-muted small mb-1">Company</div>
+            <div class="fw-semibold"><%= app.jobId.company %></div>
+          </div>
+          <div class="mb-3">
+            <div class="text-muted small mb-1">Location</div>
+            <div class="fw-semibold"><%= app.jobId.location %></div>
+          </div>
+          <div>
+            <div class="text-muted small mb-1">Type</div>
+            <span class="badge bg-primary bg-opacity-10 text-primary">
+              <%= app.jobId.type %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ✅ resume card -->
+      <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-header fw-semibold py-3 rounded-top-4">
+          <i class="bi bi-file-earmark-text me-2 text-warning"></i>Resume
+        </div>
+        <div class="card-body p-4">
+          <% if (app.resumeId) { %>
+            <div class="d-grid gap-2">
+              <!-- ✅ view in modal -->
+              <button class="btn btn-primary btn-sm"
+                data-bs-toggle="modal" data-bs-target="#resumeModal">
+                <i class="bi bi-eye me-2"></i>View Resume
+              </button>
+              <!-- open in new tab -->
+              <a href="/resume/view/<%= app.resumeId._id %>"
+                target="_blank"
+                class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-box-arrow-up-right me-2"></i>Open in New Tab
+              </a>
+            </div>
+          <% } else { %>
+            <div class="text-center py-3 text-muted">
+              <i class="bi bi-file-earmark-x fs-2 d-block mb-2 opacity-50"></i>
+              <small>No resume attached</small>
+            </div>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- actions -->
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-header fw-semibold py-3 rounded-top-4">
+          <i class="bi bi-sliders me-2 text-danger"></i>Actions
+        </div>
+        <div class="card-body p-4 d-grid gap-2">
+
+          <% if (app.status !== 'accepted') { %>
+            <button class="btn btn-success action-btn" data-status="accepted">
+              <i class="bi bi-check-circle me-2"></i>Accept Application
+            </button>
+          <% } %>
+
+          <% if (app.status !== 'reviewed') { %>
+            <button class="btn btn-info text-white action-btn" data-status="reviewed">
+              <i class="bi bi-eye me-2"></i>Mark as Reviewed
+            </button>
+          <% } %>
+
+          <% if (app.status !== 'rejected') { %>
+            <button class="btn btn-danger action-btn" data-status="rejected">
+              <i class="bi bi-x-circle me-2"></i>Reject Application
+            </button>
+          <% } %>
+
+          <% if (app.status === 'accepted' || app.status === 'rejected') { %>
+            <button class="btn btn-outline-secondary action-btn" data-status="pending">
+              <i class="bi bi-arrow-counterclockwise me-2"></i>Reset to Pending
+            </button>
+          <% } %>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+
+<!-- ✅ RESUME MODAL -->
+<div class="modal fade" id="resumeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow">
+
+      <div class="modal-header border-0 pb-0">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-file-earmark-text text-warning fs-5"></i>
+          <h5 class="modal-title fw-bold mb-0">
+            <% if (app.resumeId.title) { %>
+              <%= app.resumeId.title || 'Resume' %>
+            <% } %>
+          </h5>
+        </div>
+        <div class="d-flex align-items-center gap-2 ms-auto">
+          <% if (app.resumeId) { %>
+            <a href="/resume/view/<%= app.resumeId._id %>"
+              target="_blank"
+              class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-box-arrow-up-right me-1"></i>Open
+            </a>
+          <% } %>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+      </div>
+
+      <div class="modal-body p-0">
+        <% if (app.resumeId) { %>
+          <!-- embed resume in iframe -->
+          <iframe
+            src="/resume/view/<%= app.resumeId._id %>?embed=true"
+            style="width:100%;height:80vh;border:none;"
+            title="Applicant Resume">
+          </iframe>
+        <% } else { %>
+          <div class="text-center py-5 text-muted">
+            <i class="bi bi-file-earmark-x fs-1 d-block mb-3 opacity-25"></i>
+            No resume attached to this application.
+          </div>
+        <% } %>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const appId = '<%= app._id %>';
+
+  // ── status update ──────────────────────────────────────────────────────────
+  document.querySelectorAll('.action-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const status  = btn.dataset.status;
+      const errEl   = document.getElementById('actionError');
+      const sucEl   = document.getElementById('actionSuccess');
+      errEl.classList.add('d-none');
+      sucEl.classList.add('d-none');
+      btn.disabled = true;
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving…';
+
+      try {
+        const res  = await fetch(`/jobs/applications/${appId}/status`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body:    JSON.stringify({ status }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.error || 'Failed to update');
+
+        // update badge
+        const badge = document.getElementById('statusBadge');
+        const icons = {
+          accepted: 'bi-check-circle',
+          rejected: 'bi-x-circle',
+          reviewed: 'bi-eye',
+          pending:  'bi-clock-history',
+        };
+        const colors = {
+          accepted: 'bg-success',
+          rejected: 'bg-danger',
+          reviewed: 'bg-info',
+          pending:  'bg-warning text-dark',
+        };
+        badge.className = `badge px-3 py-2 rounded-pill fs-6 ${colors[status]}`;
+        badge.innerHTML = `<i class="bi ${icons[status]} me-1"></i>${status.charAt(0).toUpperCase() + status.slice(1)}`;
+
+        sucEl.innerHTML = `<i class="bi bi-check-circle me-2"></i>Status updated to <strong>${status}</strong>.`;
+        sucEl.classList.remove('d-none');
+
+        // reload after short delay to refresh buttons
+        setTimeout(() => window.location.reload(), 1200);
+
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('d-none');
+        btn.disabled  = false;
+        btn.innerHTML = orig;
+      }
+    });
+  });
+</script>
+
+<%- include('../partials/footer') %>

@@ -1,0 +1,97 @@
+<%- include('../partials/header') %>
+<%- include('../partials/navbar') %>
+
+
+<div class="container py-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h3 class="fw-bold mb-0">My Posted Jobs</h3>
+
+  </div>
+
+  <% if (jobs.length === 0) { %>
+
+    <div class="text-center py-5 text-muted">
+      <h5>No jobs posted yet</h5>
+    </div>
+
+  <% } else { %>
+
+    <div class="table-responsive">
+
+      <table class="table table-hover align-middle shadow-sm rounded-4 overflow-hidden">
+
+        <thead class="table-dark">
+
+          <tr>
+            <th>Title</th>
+            <th>Company</th>
+            <th>Location</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          <% jobs.forEach(job => { %>
+
+            <tr>
+
+              <td class="fw-semibold">
+                <%= job.title %>
+              </td>
+
+              <td>
+                <%= job.company %>
+              </td>
+
+              <td>
+                <%= job.location %>
+              </td>
+
+              <td>
+                <span class="badge bg-secondary">
+                  <%= job.type %>
+                </span>
+              </td>
+
+              <td>
+                <span class="badge bg-success">
+                  Active
+                </span>
+              </td>
+
+              <td class="text-end">
+
+                <!-- VIEW JOB -->
+                <a href="/jobs/<%= job._id %>" class="btn btn-sm btn-outline-primary me-2">
+                  View
+                </a>
+
+                <!-- VIEW APPLICANTS -->
+                <a href="/jobs/<%= job._id %>/applications" class="btn btn-sm btn-primary">
+                  View Applicants
+                </a>
+
+              </td>
+
+            </tr>
+
+          <% }) %>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  <% } %>
+
+</div>
+
+
+<%- include('../partials/footer') %>

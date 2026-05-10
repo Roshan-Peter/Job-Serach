@@ -1,6 +1,169 @@
 <%- include('partials/header', { title: 'Index' }) %>
-<%- include('partials/navbar') %>
+  <%- include('partials/navbar') %>
 
-  <h1><%= title %></h1>
+    <section class="py-5 text-center border-bottom">
 
-  <%- include('partials/footer') %>
+      <div class="container">
+
+        <h1 class="display-5 fw-bold mb-3">
+          Find Your Dream Job or Hire Top Talent
+        </h1>
+
+        <p class="text-muted fs-5 mb-4">
+          A modern job platform with real-time updates, smart matching, and verified companies.
+        </p>
+
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+
+          <a href="/jobs" class="btn btn-primary px-4">
+            Browse Jobs
+          </a>
+
+          <a href="/jobs/create" class="btn btn-outline-secondary px-4">
+            Post a Job
+          </a>
+
+        </div>
+
+        <div class="mt-4 text-muted small">
+          Live updates • Secure authentication • Real-time activity tracking
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+
+    <section class="container py-5">
+
+      <div class="row g-4 text-center">
+
+        <div class="col-md-3">
+          <div class="card shadow-sm border-0">
+            <div class="card-body">
+              <h2 class="fw-bold text-primary">
+                <%= stats.jobs || 0 %>
+              </h2>
+              <p class="text-muted mb-0">Jobs Posted</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm border-0">
+            <div class="card-body">
+              <h2 class="fw-bold text-success">
+                <%= stats.companies || 0 %>
+              </h2>
+              <p class="text-muted mb-0">Companies</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm border-0">
+            <div class="card-body">
+              <h2 class="fw-bold text-warning">
+                <%= stats.users || 0 %>
+              </h2>
+              <p class="text-muted mb-0">Registered Users</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-3">
+          <div class="card shadow-sm border-0">
+            <div class="card-body">
+              <h2 class="fw-bold text-danger">
+                <%= stats.active || 0 %>
+              </h2>
+              <p class="text-muted mb-0">Active Now</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+
+
+    <section class=" py-5 border-top">
+
+      <div class="container">
+
+        <h3 class="text-center fw-bold mb-5">Why Choose Our Platform?</h3>
+
+        <div class="row g-4">
+
+          <div class="col-md-4">
+            <div class="p-4 border rounded h-100">
+              <h5>⚡ Real-Time Updates</h5>
+              <p class="text-muted">
+                See active users, job posts, and activity instantly using WebSockets.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="p-4 border rounded h-100">
+              <h5>🔐 Secure Authentication</h5>
+              <p class="text-muted">
+                Session-based login with email verification and OTP support.
+              </p>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="p-4 border rounded h-100">
+              <h5>🏢 Verified Companies</h5>
+              <p class="text-muted">
+                Company listings are manually verified within 7 days.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <section class="container py-5">
+
+      <h3 class="fw-bold mb-4">Featured Jobs</h3>
+
+      <div class="row g-4">
+
+        <% featuredJobs.forEach(job=> { %>
+          <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100">
+
+              <div class="card-body">
+                <h5 class="fw-bold">
+                  <%= job.title %>
+                </h5>
+                <p class="text-muted mb-1">
+                  <%= job.company %>
+                </p>
+                <p class="small text-muted">
+                  <%= job.location %>
+                </p>
+
+                <span class="badge bg-primary">
+                  <%= job.type %>
+                </span>
+              </div>
+
+            </div>
+          </div>
+          <% }) %>
+
+      </div>
+
+    </section>
+
+    <%- include('partials/footer') %>

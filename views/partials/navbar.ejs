@@ -10,7 +10,7 @@
 
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-      <% if (user && !user.isAdmin) { %>
+      <% if (!user) { %>
       <!-- left links -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
@@ -19,12 +19,12 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="/about">
             <i class="bi bi-info-circle me-1"></i>About
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#">
+          <a class="nav-link" href="/contact">
             <i class="bi bi-envelope me-1"></i>Contact Us
           </a>
         </li>
@@ -36,7 +36,6 @@
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
 
         <% if (user) {  if(!user.isAdmin){ %>
-          <!-- ✅ logged in -->
           <li class="nav-item me-2">
             <a class="nav-link" href="/dashboard">
               <i class="bi bi-grid me-1"></i>Dashboard
@@ -64,6 +63,12 @@
               <li>
                 <a class="dropdown-item" href="/profile">
                   <i class="bi bi-person me-2"></i>Profile
+                </a>
+              </li>
+
+              <li>
+                <a class="dropdown-item" href="/my/job/posting">
+                  <i class="bi bi-person me-2"></i>My Job Postings
                 </a>
               </li>
               <li>

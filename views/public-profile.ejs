@@ -1,0 +1,169 @@
+<%- include('partials/header', { title: userDetails.name || 'Profile' }) %>
+<%- include('partials/navbar') %>
+
+<main class="container py-4">
+
+  <div class="row g-4">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-lg-8">
+
+      <!-- PROFILE HEADER -->
+      <div class="card shadow-sm border-0">
+
+        <div class="bg-primary" style="height:120px;"></div>
+
+        <div class="card-body position-relative">
+
+          <!-- Avatar -->
+          <div class="position-absolute" style="top:-40px;">
+            <div class="rounded-circle bg-dark text-white d-flex align-items-center justify-content-center"
+                 style="width:80px;height:80px;font-size:28px;">
+              <%= userDetails.name ? userDetails.name.charAt(0).toUpperCase() : "U" %>
+            </div>
+          </div>
+
+          <div class="ms-5 pt-3">
+
+            <h4 class="fw-bold mb-1">
+              <%= userDetails.name || "Unnamed User" %>
+            </h4>
+
+            <p class="text-muted mb-1">
+              <%= profile.headline || "No headline added" %>
+            </p>
+
+            <p class="text-muted small">
+              🔖 Public ID: <%= publicId %>
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ABOUT -->
+      <div class="card shadow-sm border-0 mt-3">
+        <div class="card-body">
+
+          <h5 class="fw-bold">About</h5>
+          <p class="text-muted mb-0">
+            <%= profile.bio || "No bio available." %>
+          </p>
+
+        </div>
+      </div>
+
+      <!-- EXPERIENCE -->
+      <div class="card shadow-sm border-0 mt-3">
+        <div class="card-body">
+
+          <h5 class="fw-bold mb-3">Experience</h5>
+
+          <% if (experience.length) { %>
+
+            <% experience.forEach(exp => { %>
+              <div class="border rounded p-3 mb-3">
+
+                <h6 class="fw-bold mb-1"><%= exp.title %></h6>
+                <p class="text-muted mb-1"><%= exp.company %></p>
+
+                <small class="text-muted">
+                  <%= exp.startDate || "" %> - <%= exp.endDate || "Present" %>
+                </small>
+
+                <p class="mt-2 text-muted mb-0">
+                  <%= exp.description %>
+                </p>
+
+              </div>
+            <% }) %>
+
+          <% } else { %>
+            <p class="text-muted mb-0">No experience added.</p>
+          <% } %>
+
+        </div>
+      </div>
+
+      <!-- EDUCATION -->
+      <div class="card shadow-sm border-0 mt-3">
+        <div class="card-body">
+
+          <h5 class="fw-bold mb-3">Education</h5>
+
+          <% if (education.length) { %>
+
+            <% education.forEach(edu => { %>
+              <div class="border rounded p-3 mb-3">
+
+                <h6 class="fw-bold mb-1"><%= edu.school %></h6>
+                <p class="text-muted mb-1"><%= edu.degree %></p>
+                <small class="text-muted"><%= edu.year %></small>
+
+              </div>
+            <% }) %>
+
+          <% } else { %>
+            <p class="text-muted mb-0">No education added.</p>
+          <% } %>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-lg-4">
+
+      <!-- SKILLS -->
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+          <h5 class="fw-bold mb-3">Skills</h5>
+
+          <% if (profile.skills && profile.skills.length) { %>
+            <div class="d-flex flex-wrap gap-2">
+              <% profile.skills.forEach(skill => { %>
+                <span class="badge bg-light text-dark border"><%= skill %></span>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="text-muted mb-0">No skills added.</p>
+          <% } %>
+
+        </div>
+      </div>
+
+      <!-- JOBS -->
+      <div class="card shadow-sm border-0 mt-3">
+        <div class="card-body">
+
+          <h5 class="fw-bold mb-3">Posted Jobs</h5>
+
+          <% if (jobs.length) { %>
+
+            <% jobs.forEach(job => { %>
+              <div class="border rounded p-3 mb-2">
+
+                <h6 class="fw-bold mb-1"><%= job.title %></h6>
+                <p class="text-muted mb-0"><%= job.company %></p>
+
+              </div>
+            <% }) %>
+
+          <% } else { %>
+            <p class="text-muted mb-0">No jobs posted.</p>
+          <% } %>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</main>
+
+<%- include('partials/footer') %>

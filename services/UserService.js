@@ -1,7 +1,6 @@
 import User from '../models/User.js';
 import bcrypt from 'bcrypt';
-import { randomBytes } from "crypto";
-
+import { randomBytes } from 'crypto';
 
 const SALT_ROUNDS = 10;
 
@@ -12,6 +11,10 @@ export default class UserService {
 
   static async findById(id) {
     return User.findById(id).select('-password');
+  }
+
+    static async findByPublicId(publicId) {
+    return await User.findOne({ publicId });
   }
 
   static async findByEmail(email) {
@@ -84,7 +87,6 @@ export default class UserService {
     return obj;
   }
 
-
   static async confirmEmail(email) {
     const user = await User.findOne({ email });
     if (!user) {
@@ -92,19 +94,23 @@ export default class UserService {
       err.status = 404;
       throw err;
     }
-    user.isEmailConfirmed = true;       
-    user.emailConfirmedAt = new Date();  
+    user.isEmailConfirmed = true;
+    user.emailConfirmedAt = new Date();
     await user.save();
     const obj = user.toObject();
     delete obj.password;
     return obj;
   }
 
-
+  static async updateLastSeen(userId) {
+    await User.findByIdAndUpdate(userId, {
+      lastSeen: new Date(),
+    });
+  }
 
   static async makePublicId() {
-  const random = randomBytes(4).toString('hex').toUpperCase(); // 8‑hex chars
-  const time   = Date.now().toString(36).toUpperCase();        // compact timestamp
-  return `USR-${time}-${random}`;
-}
+    const random = randomBytes(4).toString('hex').toUpperCase();
+    const time = Date.now().toString(36).toUpperCase();
+    return `USR-${time}-${random}`;
+  }
 }

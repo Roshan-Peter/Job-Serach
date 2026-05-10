@@ -1,0 +1,164 @@
+<%- include('partials/header', { title: 'About' }) %>
+  <%- include('partials/navbar') %>
+
+
+<main class="container py-5">
+
+  <!-- HERO -->
+  <section class="text-center mb-5">
+    <h1 class="fw-bold display-5">About Our Platform</h1>
+    <p class="text-muted fs-5 mt-3">
+      A modern job marketplace built for speed, trust, and real-time opportunities.
+    </p>
+  </section>
+
+  <!-- MISSION -->
+  <section class="row align-items-center mb-5 g-4">
+
+    <div class="col-md-6">
+      <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d"
+           class="img-fluid rounded shadow-sm"
+           alt="teamwork">
+    </div>
+
+    <div class="col-md-6">
+      <h3 class="fw-bold mb-3">Our Mission</h3>
+      <p class="text-muted">
+        We aim to simplify hiring by connecting talented individuals with verified companies
+        through a fast, secure, and real-time job platform.
+      </p>
+
+      <p class="text-muted">
+        Whether you're a developer, designer, or recruiter — our system ensures transparency,
+        speed, and trust in every job listing.
+      </p>
+
+    </div>
+
+  </section>
+
+  <!-- FEATURES -->
+  <section class="mb-5">
+
+    <h3 class="fw-bold text-center mb-4">What Makes Us Different</h3>
+
+    <div class="row g-4">
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h5>⚡ Real-Time Updates</h5>
+            <p class="text-muted">
+              Live job postings and active user tracking using WebSockets.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h5>🔐 Secure Authentication</h5>
+            <p class="text-muted">
+              Session-based login with email verification and OTP security.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h5>🏢 Verified Companies</h5>
+            <p class="text-muted">
+              Company profiles are reviewed and verified within 7 days.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="mb-5">
+
+    <h3 class="fw-bold text-center mb-4">How It Works</h3>
+
+    <div class="row text-center g-4">
+
+      <div class="col-md-4">
+        <div class="p-4 border rounded h-100">
+          <h2 class="text-primary">1</h2>
+          <h5>Sign Up</h5>
+          <p class="text-muted">Create your account with email verification.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-4 border rounded h-100">
+          <h2 class="text-primary">2</h2>
+          <h5>Explore Jobs</h5>
+          <p class="text-muted">Browse thousands of real-time job listings.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-4 border rounded h-100">
+          <h2 class="text-primary">3</h2>
+          <h5>Apply or Hire</h5>
+          <p class="text-muted">Apply instantly or post your own job listings.</p>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- STATS -->
+  <section class="bg-light p-5 rounded text-center">
+
+    <h3 class="fw-bold mb-4">Platform Statistics</h3>
+
+    <div class="row">
+
+      <div class="col-md-3">
+        <h2 class="fw-bold text-primary"><%= stats.jobs || 0 %></h2>
+        <p class="text-muted">Jobs Posted</p>
+      </div>
+
+      <div class="col-md-3">
+        <h2 class="fw-bold text-success"><%= stats.companies || 0 %></h2>
+        <p class="text-muted">Companies</p>
+      </div>
+
+      <div class="col-md-3">
+        <h2 class="fw-bold text-warning"><%= stats.users || 0 %></h2>
+        <p class="text-muted">Users</p>
+      </div>
+
+      <div class="col-md-3">
+        <h2 class="fw-bold text-danger"><%= stats.active || 0 %></h2>
+        <p class="text-muted">Active Now</p>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- FOOTER NOTE -->
+  <section class="text-center mt-5">
+
+    <h4 class="fw-bold">Built for the Future of Hiring 🚀</h4>
+
+    <p class="text-muted">
+      A scalable job platform designed with real-time architecture, secure authentication,
+      and modern UX principles.
+    </p>
+
+  </section>
+
+</main>
+
+<%- include('partials/footer') %>

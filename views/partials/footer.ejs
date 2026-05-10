@@ -1,5 +1,5 @@
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <style>
   /* stick footer to bottom when content is short */
   body {
@@ -7,9 +7,11 @@
     display: flex;
     flex-direction: column;
   }
+
   main {
     flex: 1;
   }
+
   footer {
     flex-shrink: 0;
   }
@@ -30,23 +32,30 @@
       <!-- links -->
       <div class="col-md-4 text-center">
         <ul class="list-inline mb-0">
-          <% if( user && !user.isAdmin ) { %>
+          <% if (!user){ %>
             <li class="list-inline-item">
               <a href="/" class="text-muted text-decoration-none small">Home</a>
             </li>
+
             <li class="list-inline-item text-muted">·</li>
+
             <li class="list-inline-item">
-              <a href="#" class="text-muted text-decoration-none small">About</a>
+              <a href="/about" class="text-muted text-decoration-none small">About</a>
             </li>
+
             <li class="list-inline-item text-muted">·</li>
+
             <li class="list-inline-item">
-              <a href="#" class="text-muted text-decoration-none small">Contact</a>
+              <a href="/contact" class="text-muted text-decoration-none small">Contact</a>
             </li>
+
             <li class="list-inline-item text-muted">·</li>
+
             <li class="list-inline-item">
-              <a href="#" class="text-muted text-decoration-none small">Privacy</a>
+              <a href="/privacy" class="text-muted text-decoration-none small">Privacy</a>
             </li>
-          <% } %>
+
+            <% } %>
         </ul>
       </div>
 
@@ -67,7 +76,29 @@
   </div>
 </footer>
 
-</body>
-</html>
-</body>
-</html>
+<% if (user) { %>
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    const socket = io();
+
+
+    // notify activity
+    function sendActivity() {
+      socket.emit("activity");
+    }
+
+    // detect activity
+    ["click", "keydown", "mousemove", "scroll"].forEach(event => {
+      window.addEventListener(event, sendActivity);
+    });
+
+    window.addEventListener("beforeunload", () => {
+      socket.disconnect();
+    });
+  </script>
+  <% } %>
+
+    </body>
+
+    </html>

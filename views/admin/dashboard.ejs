@@ -3,6 +3,9 @@
 
 <main class="container-fluid py-4 px-4">
 
+
+
+
   <!-- page header -->
   <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
@@ -20,6 +23,105 @@
       </button>
     </form>
   </div>
+
+
+
+    <!-- <canvas id="activeChart" height="100"></canvas>
+
+    <div class="mt-3 text-center">
+  <div class="card shadow-sm border-0">
+    <div class="card-body py-3">
+      
+      <h6 class="text-muted mb-1">Currently Active Users</h6>
+      
+      <h2 class="fw-bold mb-0">
+        <span id="activeUserCount">0</span>
+      </h2>
+
+    </div>
+  </div>
+</div> -->
+
+
+
+
+<div class="container-fluid py-4">
+
+  <div class="row g-4">
+
+    <!-- LEFT SIDE: CHART + ACTIVE USERS -->
+    <div class="col-lg-6">
+
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+          <h5 class="fw-bold mb-3">
+            <i class="bi bi-graph-up me-2 text-primary"></i>
+            Live Active Users
+          </h5>
+
+          <canvas id="activeChart" height="120"></canvas>
+
+          <div class="mt-4 text-center">
+            <div class="card border-0">
+              <div class="card-body py-3">
+                
+                <h6 class="text-muted mb-1">Currently Active Users</h6>
+                
+                <h2 class="fw-bold mb-0 text-primary">
+                  <span id="activeUserCount">0</span>
+                </h2>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDE: INFO PANEL -->
+    <div class="col-lg-6">
+
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body">
+
+          <h5 class="fw-bold mb-3">
+            <i class="bi bi-lightning-charge me-2 text-warning"></i>
+            Real-Time Insights
+          </h5>
+
+          <div class="alert alert-info">
+            🚀 System is monitoring live user activity in real time.
+          </div>
+
+          <p class="text-muted">
+            This dashboard updates every few seconds using WebSocket connections.
+            No database polling is required, making it highly efficient and scalable.
+          </p>
+
+          <hr>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">✔ Live socket tracking enabled</li>
+            <li class="list-group-item">✔ Instant UI updates</li>
+            <li class="list-group-item">✔ Zero DB load for activity</li>
+            <li class="list-group-item">✔ Scalable architecture ready</li>
+          </ul>
+
+          <div class="mt-4 p-3 bg-dark text-white rounded">
+            💡 Tip: Add Redis later for multi-server scaling.
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
 
 
 
@@ -297,5 +399,57 @@
 
   </div>
 </main>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const socket = io();
+
+  const canvas = document.getElementById("activeChart");
+  const countEl = document.getElementById("activeUserCount");
+
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  const chart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: [],
+      datasets: [{
+        label: "Active Users",
+        data: [],
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      animation: false
+    }
+  });
+
+  socket.on("active-user-count", (data) => {
+
+    // 🔥 update number display
+    if (countEl) {
+      countEl.innerText = data.count;
+    }
+
+    // 📊 update graph
+    chart.data.labels.push(new Date(data.time).toLocaleTimeString());
+    chart.data.datasets[0].data.push(data.count);
+
+    if (chart.data.labels.length > 20) {
+      chart.data.labels.shift();
+      chart.data.datasets[0].data.shift();
+    }
+
+    chart.update();
+  });
+
+});
+</script>
 
 <%- include('../partials/footer') %>

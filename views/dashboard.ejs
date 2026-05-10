@@ -49,8 +49,77 @@
     </div>
   </div>
 
+
+  <!-- VIEW APPLICATIONS CARD -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+
+  <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
+
+    <div class="d-flex align-items-center gap-3">
+
+
+      <!-- TEXT -->
+      <div>
+        <h5 class="fw-bold mb-1">View My Applications</h5>
+
+        <p class="text-muted mb-0">
+          Track jobs you've applied for and monitor application status.
+        </p>
+      </div>
+
+    </div>
+    
+
+    <!-- BUTTON -->
+    <button
+      class="btn btn-primary px-4 rounded-pill"
+      data-bs-toggle="modal"
+      data-bs-target="#applicationsModal"
+    >
+      <i class="bi bi-eye-fill me-2"></i>
+      View Applications
+    </button>
+
+  </div>
+
+</div>
+
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+
+  <div class="card-body d-flex align-items-center justify-content-between flex-wrap gap-3">
+
+    <div class="d-flex align-items-center gap-3">
+
+
+      <!-- TEXT -->
+      <div>
+        <h5 class="fw-bold mb-1">Create Resume</h5>
+
+        <p class="text-muted mb-0">
+          Create your new resume with Job Search
+        </p>
+      </div>
+
+    </div>
+    
+
+    <!-- BUTTON -->
+    <a
+          class="btn btn-primary px-4 rounded-pill"
+      href="/resumes"
+    >
+      <i class="bi bi-eye-fill me-2"></i>
+      Create
+  </a>
+
+  </div>
+
+</div>
+
+
   <!-- recent login activity -->
-  <div class="card shadow-sm border-0">
+  <div class="card shadow-sm mt-5 border-0">
     <div class="card-header  fw-semibold">
       <i class="bi bi-clock-history me-2 text-primary"></i>Recent Login Activity
     </div>
@@ -77,6 +146,123 @@
   </div>
 </main>
 
+
+
+
+
+
+
+
+<!-- APPLICATIONS MODAL -->
+<div class="modal fade" id="applicationsModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content rounded-4 border-0 shadow-lg">
+
+      <div class="modal-header border-0">
+        <h4 class="fw-bold">My Applications</h4>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- LOADER -->
+        <div id="appLoader" class="text-center py-5">
+          <div class="spinner-border text-primary" role="status"></div>
+          <p class="text-muted mt-3">Loading your applications...</p>
+        </div>
+
+        <!-- CONTAINER -->
+        <div id="appContainer" class="d-none d-flex flex-column gap-3"></div>
+
+        <!-- EMPTY STATE -->
+        <div id="appEmpty" class="text-center py-5 d-none">
+          <h5 class="text-muted">No applications found</h5>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  const modal = document.getElementById("applicationsModal");
+  const loader = document.getElementById("appLoader");
+  const container = document.getElementById("appContainer");
+  const empty = document.getElementById("appEmpty");
+
+  async function loadApplications() {
+
+    // reset UI
+    loader.classList.remove("d-none");
+    container.classList.add("d-none");
+    empty.classList.add("d-none");
+
+    container.innerHTML = "";
+
+    try {
+
+      const res = await fetch("/applications/me");
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error);
+
+      const applications = data.applications;
+
+      loader.classList.add("d-none");
+
+      if (!applications.length) {
+        empty.classList.remove("d-none");
+        return;
+      }
+
+      container.classList.remove("d-none");
+
+      applications.forEach(app => {
+
+        const statusColor =
+          app.status === "accepted" ? "success" :
+          app.status === "rejected" ? "danger" :
+          app.status === "reviewed" ? "info" : "warning";
+
+        container.innerHTML += `
+          <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body d-flex justify-content-between align-items-center flex-wrap gap-3">
+
+              <div>
+                <h5 class="fw-bold mb-1">${app.jobId?.title || "Job"}</h5>
+                <p class="text-muted mb-1">${app.jobId?.company || ""}</p>
+                <small class="text-muted">
+                  Applied on ${new Date(app.createdAt).toLocaleDateString()}
+                </small>
+              </div>
+
+              <span class="badge bg-${statusColor} px-3 py-2 rounded-pill">
+                ${app.status}
+              </span>
+
+            </div>
+          </div>
+        `;
+
+      });
+
+    } catch (err) {
+      loader.classList.add("d-none");
+      empty.classList.remove("d-none");
+      empty.innerHTML = `<h5 class="text-danger">${err.message}</h5>`;
+    }
+  }
+
+  // when modal opens → fetch data
+  modal.addEventListener("show.bs.modal", loadApplications);
+
+});
+</script>
 
 
 <%- include('partials/footer') %>

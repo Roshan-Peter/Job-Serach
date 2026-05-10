@@ -1,0 +1,254 @@
+<%- include('../partials/header') %>
+    <%- include('../partials/navbar') %>
+
+        <div class="container py-5">
+
+            <div class="mb-4">
+                <h3 class="fw-bold">Create Resume</h3>
+                <p class="text-muted">Build your resume step by step</p>
+            </div>
+
+            <form id="resumeForm">
+
+                <!-- BASIC INFO -->
+                <div class="card shadow-sm border-0 rounded-4 mb-3">
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-3">Basic Information</h5>
+
+                        <input type="text" name="title" class="form-control mb-2" placeholder="Resume Title" required>
+
+                        <textarea name="summary" class="form-control mb-2"
+                            placeholder="Professional Summary"></textarea>
+
+                    </div>
+                </div>
+
+                <!-- SKILLS -->
+                <div class="card shadow-sm border-0 rounded-4 mb-3">
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-2">Skills</h5>
+
+                        <div id="skillsContainer"></div>
+
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addSkill()">
+                            + Add Skill
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- EXPERIENCE -->
+                <div class="card shadow-sm border-0 rounded-4 mb-3">
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-2">Experience</h5>
+
+                        <div id="experienceContainer"></div>
+
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addExperience()">
+                            + Add Experience
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- EDUCATION -->
+                <div class="card shadow-sm border-0 rounded-4 mb-3">
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-2">Education</h5>
+
+                        <div id="educationContainer"></div>
+
+                        <button type="button" class="btn btn-sm btn-outline-primary mt-2" onclick="addEducation()">
+                            + Add Education
+                        </button>
+
+                    </div>
+                </div>
+
+                <!-- CONTACT -->
+                <div class="card shadow-sm border-0 rounded-4 mb-3">
+                    <div class="card-body">
+
+                        <h5 class="fw-bold mb-3">Contact</h5>
+
+                        <input type="text" name="phone" class="form-control mb-2" placeholder="Phone">
+                        <input type="email" name="email" class="form-control mb-2" placeholder="Email">
+                        <input type="text" name="website" class="form-control mb-2" placeholder="Website">
+                        <input type="text" name="location" class="form-control" placeholder="Location">
+
+                    </div>
+                </div>
+
+                <!-- SUBMIT -->
+                <button class="btn btn-success w-100 py-2">
+                    Save Resume
+                </button>
+
+            </form>
+
+        </div>
+
+
+        <!-- Model -->
+        <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999">
+
+            <div id="resumeToast" class="toast align-items-center text-bg-success border-0" role="alert">
+
+                <div class="d-flex">
+
+                    <div class="toast-body" id="toastMessage">
+                        Resume created successfully!
+                    </div>
+
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                        data-bs-dismiss="toast"></button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <script>
+            /* ---------------- SKILLS ---------------- */
+            function addSkill() {
+                const container = document.getElementById("skillsContainer");
+
+                const div = document.createElement("div");
+                div.classList.add("input-group", "mb-2");
+
+                div.innerHTML = `
+    <input type="text" name="skills[]" class="form-control" placeholder="Skill">
+    <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()">X</button>
+  `;
+
+                container.appendChild(div);
+            }
+
+            /* ---------------- EXPERIENCE ---------------- */
+            function addExperience() {
+                const container = document.getElementById("experienceContainer");
+
+                const div = document.createElement("div");
+                div.classList.add("border", "rounded", "p-3", "mb-2");
+
+                div.innerHTML = `
+    <input name="company[]" class="form-control mb-1" placeholder="Company">
+    <input name="role[]" class="form-control mb-1" placeholder="Role">
+    <input name="startDate[]" class="form-control mb-1" placeholder="Start Date">
+    <input name="endDate[]" class="form-control mb-1" placeholder="End Date">
+    <textarea name="description[]" class="form-control mb-2" placeholder="Description"></textarea>
+    <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">Remove</button>
+  `;
+
+                container.appendChild(div);
+            }
+
+            /* ---------------- EDUCATION ---------------- */
+            function addEducation() {
+                const container = document.getElementById("educationContainer");
+
+                const div = document.createElement("div");
+                div.classList.add("border", "rounded", "p-3", "mb-2");
+
+                div.innerHTML = `
+    <input name="institution[]" class="form-control mb-1" placeholder="Institution">
+    <input name="degree[]" class="form-control mb-1" placeholder="Degree">
+    <input name="year[]" class="form-control mb-2" placeholder="Year">
+    <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()">Remove</button>
+  `;
+
+                container.appendChild(div);
+            }
+
+            /* ---------------- SUBMIT ---------------- */
+            document.getElementById("resumeForm").addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const form = new FormData(e.target);
+
+                const data = {
+                    title: form.get("title"),
+                    summary: form.get("summary"),
+                    skills: form.getAll("skills[]"),
+
+                    experience: [],
+                    education: [],
+
+                    contact: {
+                        phone: form.get("phone"),
+                        email: form.get("email"),
+                        website: form.get("website"),
+                        location: form.get("location")
+                    }
+                };
+
+                document.querySelectorAll("#experienceContainer > div").forEach(el => {
+                    data.experience.push({
+                        company: el.querySelector('[name="company[]"]').value,
+                        role: el.querySelector('[name="role[]"]').value,
+                        startDate: el.querySelector('[name="startDate[]"]').value,
+                        endDate: el.querySelector('[name="endDate[]"]').value,
+                        description: el.querySelector('[name="description[]"]').value
+                    });
+                });
+
+                document.querySelectorAll("#educationContainer > div").forEach(el => {
+                    data.education.push({
+                        institution: el.querySelector('[name="institution[]"]').value,
+                        degree: el.querySelector('[name="degree[]"]').value,
+                        year: el.querySelector('[name="year[]"]').value
+                    });
+                });
+
+                try {
+
+                    const res = await fetch("/resume/create", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        credentials: "include",
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await res.json();
+
+                    if (!res.ok) throw new Error(result.error);
+                    if (!res.ok) throw new Error(result.error);
+
+                    // ✅ SHOW TOAST INSTEAD OF ALERT
+                    const toastEl = document.getElementById("resumeToast");
+                    const toastMsg = document.getElementById("toastMessage");
+
+                    toastMsg.innerText = "Resume created successfully!";
+
+                    const toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+
+                    // redirect after short delay
+                    setTimeout(() => {
+                        window.location.href = "/resumes";
+                    }, 1200);
+                } catch (err) {
+                    const toastEl = document.getElementById("resumeToast");
+                    const toastMsg = document.getElementById("toastMessage");
+
+                    toastEl.classList.remove("text-bg-success");
+                    toastEl.classList.add("text-bg-danger");
+
+                    toastMsg.innerText = err.message;
+
+                    const toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+
+                }
+
+            });
+        </script>
+
+        <%- include('../partials/footer') %>

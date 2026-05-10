@@ -1,0 +1,722 @@
+<%- include('../partials/header', { title: 'Profile' }) %>
+<%- include('../partials/navbar') %>
+
+<main class="container py-4">
+  <div class="row g-4">
+
+    <!-- ── LEFT ── -->
+    <div class="col-lg-8">
+
+      <!-- header card -->
+      <div class="card shadow-sm border-0">
+        <div class="bg-primary rounded-top" style="height:130px"></div>
+        <div class="card-body position-relative pb-4">
+
+          <!-- avatar -->
+          <div class="position-absolute" style="top:-44px">
+            <div class="rounded-circle bg-dark text-white d-flex align-items-center
+                        justify-content-center border border-4 border-white shadow"
+                 style="width:88px;height:88px;font-size:32px;font-weight:600">
+              <%= user.name.charAt(0).toUpperCase() %>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-end mb-2">
+            <button class="btn btn-outline-primary btn-sm" onclick="openModal('profileModal')">
+              <i class="bi bi-pencil me-1"></i>Edit Profile
+            </button>
+          </div>
+
+          <h4 class="fw-bold mb-1 mt-2"><%= user.name %></h4>
+          <p class="text-muted mb-1"><%= profile.headline || 'Add a headline' %></p>
+          <p class="text-muted small mb-2">
+            <% if (profile.location) { %>
+              <i class="bi bi-geo-alt me-1"></i><%= profile.location %>
+            <% } %>
+            <% if (profile.website) { %>
+              <span class="mx-1">·</span>
+              <a href="<%= profile.website %>" target="_blank" class="text-decoration-none">
+                <i class="bi bi-link-45deg me-1"></i><%= profile.website %>
+              </a>
+            <% } %>
+            <% if (publicId) { %>
+              <span class="mx-1"></span>
+              <span class="text-muted">Public ID: <%= publicId %></span>
+            <% } %>
+          </p>
+
+        </div>
+      </div>
+
+      <!-- about -->
+      <div class="card shadow-sm border-0 mt-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h5 class="fw-bold mb-0">About</h5>
+            <!-- <button class="btn btn-sm btn-outline-secondary" onclick="openModal('profileModal')">
+              <i class="bi bi-pencil"></i>
+            </button> -->
+          </div>
+          <p class="text-muted mb-0">
+            <%= profile.bio || 'Add a bio to tell people about yourself.' %>
+          </p>
+        </div>
+      </div>
+
+      <!-- experience -->
+      <div class="card shadow-sm border-0 mt-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Experience</h5>
+            <button class="btn btn-sm btn-outline-secondary"
+              onclick="openModal('expModal')">
+              <i class="bi bi-plus-lg me-1"></i>Add
+            </button>
+          </div>
+
+          <div id="expList">
+            <% if (!experience.length) { %>
+              <p class="text-muted small" id="expEmpty">No experience added yet.</p>
+            <% } %>
+            <% experience.forEach(exp => { %>
+              <div class="border rounded-3 p-3 mb-3 exp-item" id="exp-<%= exp._id %>">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="fw-bold mb-1"><%= exp.title %></h6>
+                    <p class="text-muted mb-1 small">
+                      <i class="bi bi-building me-1"></i><%= exp.company %>
+                      <% if (exp.location) { %>· <%= exp.location %><% } %>
+                    </p>
+                    <small class="text-muted">
+                      <%= exp.startDate %> — <%= exp.isCurrent ? 'Present' : (exp.endDate || '') %>
+                    </small>
+                    <% if (exp.description) { %>
+                      <p class="mt-2 text-muted small mb-0"><%= exp.description %></p>
+                    <% } %>
+                  </div>
+                  <div class="d-flex gap-2 ms-2 flex-shrink-0">
+                    <button class="btn btn-sm btn-outline-secondary"
+                      onclick="editExp('<%= exp._id %>','<%= exp.title %>','<%= exp.company %>',
+                        '<%= exp.location %>','<%= exp.startDate %>','<%= exp.endDate %>',
+                        '<%= exp.isCurrent %>','<%= exp.description %>')">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                      onclick="deleteItem('experience','<%= exp._id %>')">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+
+      <!-- education -->
+      <div class="card shadow-sm border-0 mt-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Education</h5>
+            <button class="btn btn-sm btn-outline-secondary"
+              onclick="openModal('eduModal')">
+              <i class="bi bi-plus-lg me-1"></i>Add
+            </button>
+          </div>
+
+          <div id="eduList">
+            <% if (!education.length) { %>
+              <p class="text-muted small" id="eduEmpty">No education added yet.</p>
+            <% } %>
+            <% education.forEach(edu => { %>
+              <div class="border rounded-3 p-3 mb-3 edu-item" id="edu-<%= edu._id %>">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="fw-bold mb-1"><%= edu.school %></h6>
+                    <p class="text-muted mb-1 small"><%= edu.degree %>
+                      <% if (edu.field) { %> · <%= edu.field %><% } %>
+                    </p>
+                    <small class="text-muted">
+                      <%= edu.startYear %><% if (edu.endYear) { %> — <%= edu.endYear %><% } %>
+                    </small>
+                    <% if (edu.grade) { %>
+                      <small class="text-muted d-block">Grade: <%= edu.grade %></small>
+                    <% } %>
+                  </div>
+                  <div class="d-flex gap-2 ms-2 flex-shrink-0">
+                    <button class="btn btn-sm btn-outline-secondary"
+                      onclick="editEdu('<%= edu._id %>','<%= edu.school %>','<%= edu.degree %>',
+                        '<%= edu.field %>','<%= edu.startYear %>','<%= edu.endYear %>','<%= edu.grade %>')">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                      onclick="deleteItem('education','<%= edu._id %>')">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT ── -->
+    <div class="col-lg-4">
+
+      <!-- skills -->
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Skills</h5>
+          </div>
+          <div class="d-flex flex-wrap gap-2" id="skillsList">
+            <% if (profile.skills && profile.skills.length) { %>
+              <% profile.skills.forEach(skill => { %>
+                <span class="badge bg-light text-dark border"><%= skill %></span>
+              <% }) %>
+            <% } else { %>
+              <p class="text-muted small mb-0">No skills added yet.</p>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- jobs -->
+      <div class="card shadow-sm border-0 mt-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">Personal Projects or others.</h5>
+            <button class="btn btn-sm btn-outline-secondary"
+              onclick="openModal('jobModal')">
+              <i class="bi bi-plus-lg me-1"></i>Add
+            </button>
+          </div>
+
+          <div id="jobList">
+            <% if (!jobs.length) { %>
+              <p class="text-muted small" id="jobEmpty">No projects added yet.</p>
+            <% } %>
+            <% jobs.forEach(job => { %>
+              <div class="border rounded-3 p-3 mb-3 job-item" id="job-<%= job._id %>">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h6 class="fw-bold mb-1"><%= job.title %></h6>
+                    <p class="text-muted mb-1 small">
+                      <i class="bi bi-building me-1"></i><%= job.company %>
+                    </p>
+                    <span class="badge bg-primary bg-opacity-10 text-primary small">
+                      <%= job.type %>
+                    </span>
+                    <% if (job.isCurrent) { %>
+                      <span class="badge bg-success bg-opacity-10 text-success small ms-1">
+                        Current
+                      </span>
+                    <% } %>
+                    <small class="text-muted d-block mt-1">
+                      <%= job.startDate %> — <%= job.isCurrent ? 'Present' : (job.endDate || '') %>
+                    </small>
+                  </div>
+                  <div class="d-flex gap-2 ms-2 flex-shrink-0">
+                    <button class="btn btn-sm btn-outline-secondary"
+                      onclick="editJob('<%= job._id %>','<%= job.title %>','<%= job.company %>',
+                        '<%= job.location %>','<%= job.type %>','<%= job.startDate %>',
+                        '<%= job.endDate %>','<%= job.isCurrent %>','<%= job.description %>')">
+                      <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger"
+                      onclick="deleteItem('jobs','<%= job._id %>')">
+                      <i class="bi bi-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+
+<!-- ── PROFILE MODAL ── -->
+<div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-person me-2"></i>Edit Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="profileModalError" class="alert alert-danger d-none"></div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Headline</label>
+            <input id="p_headline" type="text" class="form-control"
+              value="<%= profile.headline || '' %>"
+              placeholder="e.g. Full Stack Developer" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Location</label>
+            <input id="p_location" type="text" class="form-control"
+              value="<%= profile.location || '' %>"
+              placeholder="e.g. Toronto, Canada" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Website</label>
+            <input id="p_website" type="url" class="form-control"
+              value="<%= profile.website || '' %>"
+              placeholder="https://yoursite.com" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Phone</label>
+            <input id="p_phone" type="tel" class="form-control"
+              value="<%= profile.phone || '' %>"
+              placeholder="+1 234 567 8900" />
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Bio</label>
+            <textarea id="p_bio" class="form-control" rows="4"
+              placeholder="Tell people about yourself…"><%= profile.bio || '' %></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Skills</label>
+            <input id="p_skills" type="text" class="form-control"
+              value="<%= (profile.skills || []).join(', ') %>"
+              placeholder="Node.js, React, MongoDB (comma separated)" />
+            <div class="form-text">Separate skills with commas</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveProfile()">
+          <span id="profileSaveText">Save Changes</span>
+          <span id="profileSaveSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── EXPERIENCE MODAL ── -->
+<div class="modal fade" id="expModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="expModalTitle">
+          <i class="bi bi-briefcase me-2"></i>Add Experience
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="exp_id" />
+        <div id="expModalError" class="alert alert-danger d-none"></div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Job Title *</label>
+            <input id="exp_title" type="text" class="form-control" placeholder="e.g. Backend Developer" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Company *</label>
+            <input id="exp_company" type="text" class="form-control" placeholder="e.g. Google" />
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Location</label>
+            <input id="exp_location" type="text" class="form-control" placeholder="e.g. Remote" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Start Date *</label>
+            <input id="exp_startDate" type="month" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">End Date</label>
+            <input id="exp_endDate" type="month" class="form-control" />
+          </div>
+          <div class="col-12">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="exp_isCurrent"
+                onchange="document.getElementById('exp_endDate').disabled = this.checked" />
+              <label class="form-check-label" for="exp_isCurrent">I currently work here</label>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea id="exp_description" class="form-control" rows="3"
+              placeholder="Describe your role…"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveExp()">
+          <span id="expSaveText">Save</span>
+          <span id="expSaveSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── EDUCATION MODAL ── -->
+<div class="modal fade" id="eduModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="eduModalTitle">
+          <i class="bi bi-mortarboard me-2"></i>Add Education
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="edu_id" />
+        <div id="eduModalError" class="alert alert-danger d-none"></div>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label fw-semibold">School *</label>
+            <input id="edu_school" type="text" class="form-control" placeholder="e.g. MIT" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Degree *</label>
+            <input id="edu_degree" type="text" class="form-control" placeholder="e.g. Bachelor's" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Field of Study</label>
+            <input id="edu_field" type="text" class="form-control" placeholder="e.g. Computer Science" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Start Year</label>
+            <input id="edu_startYear" type="number" class="form-control"
+              placeholder="2020" min="1950" max="2030" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">End Year</label>
+            <input id="edu_endYear" type="number" class="form-control"
+              placeholder="2024" min="1950" max="2030" />
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Grade / GPA</label>
+            <input id="edu_grade" type="text" class="form-control" placeholder="e.g. 3.8 / 4.0" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveEdu()">
+          <span id="eduSaveText">Save</span>
+          <span id="eduSaveSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ── JOB MODAL ── -->
+<div class="modal fade" id="jobModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="jobModalTitle">
+          <i class="bi bi-person-workspace me-2"></i>Add Job
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="job_id" />
+        <div id="jobModalError" class="alert alert-danger d-none"></div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Job Title *</label>
+            <input id="job_title" type="text" class="form-control" placeholder="e.g. Software Engineer" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Company *</label>
+            <input id="job_company" type="text" class="form-control" placeholder="e.g. Apple" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Location</label>
+            <input id="job_location" type="text" class="form-control" placeholder="e.g. Remote" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Type</label>
+            <select id="job_type" class="form-select">
+              <option>Full-time</option>
+              <option>Part-time</option>
+              <option>Contract</option>
+              <option>Freelance</option>
+              <option>Internship</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Start Date *</label>
+            <input id="job_startDate" type="month" class="form-control" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">End Date</label>
+            <input id="job_endDate" type="month" class="form-control" />
+          </div>
+          <div class="col-12">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="job_isCurrent"
+                onchange="document.getElementById('job_endDate').disabled = this.checked" />
+              <label class="form-check-label" for="job_isCurrent">This is my current job</label>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Description</label>
+            <textarea id="job_description" class="form-control" rows="3"
+              placeholder="Describe your responsibilities…"></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" onclick="saveJob()">
+          <span id="jobSaveText">Save</span>
+          <span id="jobSaveSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  // ── helpers ────────────────────────────────────────────────────────────────
+  function openModal(id) {
+    new bootstrap.Modal(document.getElementById(id)).show();
+  }
+
+  function closeModal(id) {
+    bootstrap.Modal.getInstance(document.getElementById(id))?.hide();
+  }
+
+  function setLoading(textEl, spinnerEl, loading) {
+    document.getElementById(textEl).textContent  = loading ? 'Saving…' : 'Save';
+    document.getElementById(spinnerEl).classList.toggle('d-none', !loading);
+  }
+
+  function showModalError(elId, msg) {
+    const el = document.getElementById(elId);
+    el.textContent = msg;
+    el.classList.remove('d-none');
+  }
+
+  async function apiFetch(url, method, body) {
+    const res  = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Request failed');
+    return data;
+  }
+
+  // ── profile ────────────────────────────────────────────────────────────────
+  async function saveProfile() {
+    const errEl = document.getElementById('profileModalError');
+    errEl.classList.add('d-none');
+
+    const body = {
+      headline: document.getElementById('p_headline').value,
+      bio:      document.getElementById('p_bio').value,
+      location: document.getElementById('p_location').value,
+      website:  document.getElementById('p_website').value,
+      phone:    document.getElementById('p_phone').value,
+      skills:   document.getElementById('p_skills').value,
+    };
+
+    document.getElementById('profileSaveText').textContent = 'Saving…';
+    document.getElementById('profileSaveSpinner').classList.remove('d-none');
+
+    try {
+      await apiFetch('/profile', 'POST', body);
+      closeModal('profileModal');
+      window.location.reload();
+    } catch (err) {
+      showModalError('profileModalError', err.message);
+    } finally {
+      document.getElementById('profileSaveText').textContent = 'Save Changes';
+      document.getElementById('profileSaveSpinner').classList.add('d-none');
+    }
+  }
+
+  // ── experience ─────────────────────────────────────────────────────────────
+  function editExp(id, title, company, location, startDate, endDate, isCurrent, description) {
+    document.getElementById('exp_id').value          = id;
+    document.getElementById('exp_title').value       = title;
+    document.getElementById('exp_company').value     = company;
+    document.getElementById('exp_location').value    = location;
+    document.getElementById('exp_startDate').value   = startDate;
+    document.getElementById('exp_endDate').value     = endDate === 'null' ? '' : endDate;
+    document.getElementById('exp_description').value = description === 'undefined' ? '' : description;
+    const current = isCurrent === 'true';
+    document.getElementById('exp_isCurrent').checked    = current;
+    document.getElementById('exp_endDate').disabled      = current;
+    document.getElementById('expModalTitle').innerHTML   =
+      '<i class="bi bi-briefcase me-2"></i>Edit Experience';
+    openModal('expModal');
+  }
+
+  async function saveExp() {
+    const id  = document.getElementById('exp_id').value;
+    const errEl = document.getElementById('expModalError');
+    errEl.classList.add('d-none');
+    setLoading('expSaveText', 'expSaveSpinner', true);
+
+    const body = {
+      title:       document.getElementById('exp_title').value,
+      company:     document.getElementById('exp_company').value,
+      location:    document.getElementById('exp_location').value,
+      startDate:   document.getElementById('exp_startDate').value,
+      endDate:     document.getElementById('exp_endDate').value || null,
+      isCurrent:   document.getElementById('exp_isCurrent').checked,
+      description: document.getElementById('exp_description').value,
+    };
+
+    try {
+      const url    = id ? `/profile/experience/${id}` : '/profile/experience';
+      const method = id ? 'PUT' : 'POST';
+      await apiFetch(url, method, body);
+      closeModal('expModal');
+      window.location.reload();
+    } catch (err) {
+      showModalError('expModalError', err.message);
+    } finally {
+      setLoading('expSaveText', 'expSaveSpinner', false);
+    }
+  }
+
+  // ── education ──────────────────────────────────────────────────────────────
+  function editEdu(id, school, degree, field, startYear, endYear, grade) {
+    document.getElementById('edu_id').value        = id;
+    document.getElementById('edu_school').value    = school;
+    document.getElementById('edu_degree').value    = degree;
+    document.getElementById('edu_field').value     = field === 'undefined' ? '' : field;
+    document.getElementById('edu_startYear').value = startYear;
+    document.getElementById('edu_endYear').value   = endYear === 'undefined' ? '' : endYear;
+    document.getElementById('edu_grade').value     = grade === 'undefined' ? '' : grade;
+    document.getElementById('eduModalTitle').innerHTML =
+      '<i class="bi bi-mortarboard me-2"></i>Edit Education';
+    openModal('eduModal');
+  }
+
+  async function saveEdu() {
+    const id    = document.getElementById('edu_id').value;
+    const errEl = document.getElementById('eduModalError');
+    errEl.classList.add('d-none');
+    setLoading('eduSaveText', 'eduSaveSpinner', true);
+
+    const body = {
+      school:    document.getElementById('edu_school').value,
+      degree:    document.getElementById('edu_degree').value,
+      field:     document.getElementById('edu_field').value,
+      startYear: document.getElementById('edu_startYear').value,
+      endYear:   document.getElementById('edu_endYear').value,
+      grade:     document.getElementById('edu_grade').value,
+    };
+
+    try {
+      const url    = id ? `/profile/education/${id}` : '/profile/education';
+      const method = id ? 'PUT' : 'POST';
+      await apiFetch(url, method, body);
+      closeModal('eduModal');
+      window.location.reload();
+    } catch (err) {
+      showModalError('eduModalError', err.message);
+    } finally {
+      setLoading('eduSaveText', 'eduSaveSpinner', false);
+    }
+  }
+
+  // ── jobs ───────────────────────────────────────────────────────────────────
+  function editJob(id, title, company, location, type, startDate, endDate, isCurrent, description) {
+    document.getElementById('job_id').value          = id;
+    document.getElementById('job_title').value       = title;
+    document.getElementById('job_company').value     = company;
+    document.getElementById('job_location').value    = location === 'undefined' ? '' : location;
+    document.getElementById('job_type').value        = type;
+    document.getElementById('job_startDate').value   = startDate;
+    document.getElementById('job_endDate').value     = endDate === 'null' ? '' : endDate;
+    document.getElementById('job_description').value = description === 'undefined' ? '' : description;
+    const current = isCurrent === 'true';
+    document.getElementById('job_isCurrent').checked  = current;
+    document.getElementById('job_endDate').disabled    = current;
+    document.getElementById('jobModalTitle').innerHTML =
+      '<i class="bi bi-person-workspace me-2"></i>Edit Job';
+    openModal('jobModal');
+  }
+
+  async function saveJob() {
+    const id    = document.getElementById('job_id').value;
+    const errEl = document.getElementById('jobModalError');
+    errEl.classList.add('d-none');
+    setLoading('jobSaveText', 'jobSaveSpinner', true);
+
+    const body = {
+      title:       document.getElementById('job_title').value,
+      company:     document.getElementById('job_company').value,
+      location:    document.getElementById('job_location').value,
+      type:        document.getElementById('job_type').value,
+      startDate:   document.getElementById('job_startDate').value,
+      endDate:     document.getElementById('job_endDate').value || null,
+      isCurrent:   document.getElementById('job_isCurrent').checked,
+      description: document.getElementById('job_description').value,
+    };
+
+    try {
+      const url    = id ? `/profile/jobs/${id}` : '/profile/jobs';
+      const method = id ? 'PUT' : 'POST';
+      await apiFetch(url, method, body);
+      closeModal('jobModal');
+      window.location.reload();
+    } catch (err) {
+      showModalError('jobModalError', err.message);
+    } finally {
+      setLoading('jobSaveText', 'jobSaveSpinner', false);
+    }
+  }
+
+  // ── delete ─────────────────────────────────────────────────────────────────
+  async function deleteItem(type, id) {
+    if (!confirm('Are you sure you want to delete this?')) return;
+    try {
+      await apiFetch(`/profile/${type}/${id}`, 'DELETE', {});
+      document.getElementById(`${type.slice(0,-1)}-${id}`)?.remove();
+    } catch (err) {
+      alert(err.message || 'Failed to delete');
+    }
+  }
+
+  // ── reset modals on close ──────────────────────────────────────────────────
+  document.getElementById('expModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('exp_id').value = '';
+    document.getElementById('expModalTitle').innerHTML =
+      '<i class="bi bi-briefcase me-2"></i>Add Experience';
+    document.getElementById('expModalError').classList.add('d-none');
+  });
+
+  document.getElementById('eduModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('edu_id').value = '';
+    document.getElementById('eduModalTitle').innerHTML =
+      '<i class="bi bi-mortarboard me-2"></i>Add Education';
+    document.getElementById('eduModalError').classList.add('d-none');
+  });
+
+  document.getElementById('jobModal').addEventListener('hidden.bs.modal', () => {
+    document.getElementById('job_id').value = '';
+    document.getElementById('jobModalTitle').innerHTML =
+      '<i class="bi bi-person-workspace me-2"></i>Add Job';
+    document.getElementById('jobModalError').classList.add('d-none');
+  });
+</script>
+
+<%- include('../partials/footer') %>
